@@ -1,8 +1,9 @@
 import psrm_ci_ft_base
 import os, multiprocessing, pandas, tqdm
 
+print('Under development!')
 
-path = '/mnt/c/Users/MAEN/Documents/PSRM_CI_FT_BASE/'
+path = '/mnt/c/Users/MAEN/Documents/PSRM_CI_FT_BASE/'  # local path
 
 # cache afregning and underretning
 if (not os.path.exists(os.path.join(path, 'afregning.pkl')) or
@@ -44,58 +45,30 @@ def check_NYMFID(nymfid):
                round(sum(underret['AMOUNT']), 2))
     report['BALLANCED'] = afstemt
     
-    # ERRORTYPES
-    if any(underret['DMIFordringTypeKategori']) == 'OR':
-        if (len(afregn[afregn['FT_TYPE_FLG'] == 'PS']) ==
-            len(afregn[afregn['FT_TYPE_FLG'] == 'PX'])):
+    # ERRORS
+    if any(underret['DMIFordringTypeKategori'] == 'OR'):
+        ps = len(afregn[afregn['FT_TYPE_FLG'] == 'PS'])
+        px = len(afregn[afregn['FT_TYPE_FLG'] == 'PX'])
+        if ps == px:
             if len(afregn) != len(underret):
                 assert afstemt == False
-                report['ERRORTYPE'] = 'OR_PS_PX'
+                report['ERROR'] = 'OR_PS_PX'
 
     return report
 
-if not os.path.exists(os.path.join(path, 'report.csv')):
-    with multiprocessing.Pool(processes=7) as pool:
-        report = pool.map(check_NYMFID, nymfids)
-    report = pandas.DataFrame(report).set_index('NYMFID')
-    report.to_csv(os.path.join(path, 'report.csv'))
+def get_report(fname='report.csv', ncpus=1):
+    if not os.path.exists(os.path.join(path, fname)):
+        if ncups > 1:
+            with multiprocessing.Pool(processes=8) as pool:
+                report = pool.map(check_NYMFID, nymfids)
+        else:
+            report = [check_NYMFID(x) for x in tqdm.tqdm(nymfids)]
+        report = pandas.DataFrame(report).set_index('NYMFID')
+        report.to_csv(os.path.join(path, fname))
+    report = pandas.read_csv(os.path.join(path, fname))
+    return report
 
-report = pandas.read_csv(os.path.join(path, 'report.csv'))
-
-assert 0
-report = pandas.DataFrame(afregning['NYMFID'].drop_duplicates())
-report['ERRORTYPE'] = ''
-report['BALLANCED'] = False
-# per NYMFID characteristics
-if not os.path.exists(os.path.join(path, 'report.csv')):
-    for nymfid, underret in tqdm.tqdm(underretning.groupby('NYMFID')):
-        afregn = afregning[afregning['NYMFID'] == nymfid]
-
-        # time collision
-        if len(afregn) > 1:
-            time_collision = not afregn['TRANSAKTIONSDATO'].is_unique
-        elif len(afregn) == 1:
-            time_collision = False
-        report.loc[report['NYMFID'] == nymfid, 'TRANS_SAME'] = time_collision
-
-        # ISMATCHED == NO in group
-        matched = NyMF_errors[NyMF_errors['NYMFID'] == nymfid]['ISMATCHED']
-        report.loc[report['NYMFID'] == nymfid, 'ISMATCHED'] = matched
-
-        # cash ballance
-        afstemt = (round(sum(afregn['CUR_AMT']), 2) ==
-                   round(sum(underret['AMOUNT']), 2))
-        report.loc[report['NYMFID'] == nymfid, 'BALLANCED'] = afstemt
-
-        if any(underret['DMIFordringTypeKategori']) == 'OR':
-            if (len(afregn[afregn['FT_TYPE_FLG'] == 'PS']) ==
-                len(afregn[afregn['FT_TYPE_FLG'] == 'PX'])):
-                if len(afregn) != len(underret):
-                    assert afstemt == False
-                    report.loc[report['NYMFID'] == nymfid, 'ERRORTYPE'] = 'OR_PS_PX'
-    report.to_csv(os.path.join(path, 'report.csv'), index=False)
-
-report = pandas.read_csv(os.path.join(path, 'report.csv'))
+report = get_report()
 
 
 #not_ballanced = report[~report['BALLANCED']]
