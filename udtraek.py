@@ -10,3 +10,7 @@ class Udtraek(Data):
     def sum_amount(self):
         idx = [is_integer(a) for a in self.df['Parent']]
         return sum(self.df.loc[idx, 'AMOUNT'])
+
+    def duplicate_transDTTM(self):
+        idx = self.df.TransDTTM.duplicated()
+        return self.df.TransDTTM[idx]
