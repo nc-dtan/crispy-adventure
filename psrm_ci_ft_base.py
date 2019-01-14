@@ -23,13 +23,12 @@ class PSRM_CI_FT_BASE:
         df.loc[:, 'BANKID'] = df['BANKID'].astype('int64')  # convert ID to correct type
         df['VIRKNINGSDATO'] = df['VIRKNINGSDATO'].str[:10]  # cut meaningless timestamp off
         validator.check_afregningsdata(df)
-        df.loc[: ,'ISMATCHED_BOOL'] = df['ISMATCHED'] != 'NO'  # bool value for PSRM match
-        self.afregning = df
-        return self.afregning
+        df.loc[:, 'ISMATCHED_BOOL'] = df['ISMATCHED'] != 'NO'  # bool value for PSRM match
+        return df
 
     @property
     def NyMF_errors(self):
-        return self.afrening[~self.afrening['ISMATCHED_BOOL']]['NYMFID'].unique()
+        return self.afregning[~self.afregning['ISMATCHED_BOOL']]['NYMFID'].unique()
 
     @property
     def underretning(self):
