@@ -28,7 +28,14 @@ class PSRM_CI_FT_BASE:
 
     @property
     def NyMF_errors(self):
-        return self.afregning[~self.afregning['ISMATCHED_BOOL']]['NYMFID'].unique()
+        af = self.afregning
+        errors = pd.DataFrame(af['NYMFID'].drop_duplicates())
+        errors['ISMATCHED'] = 'YES'
+        for nymfid, g in af.groupby('NYMFID'):
+            if any(g['ISMATCHED'] == 'NO'):
+                errors.loc[errors['NYMFID']==nymfid,'ISMATCHED'] = 'NO'
+        assert errors['NYMFID'].is_unique
+        return errors
 
     @property
     def underretning(self):
