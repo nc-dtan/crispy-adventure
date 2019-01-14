@@ -27,6 +27,8 @@ class PSRM_CI_FT_BASE:
         df['VIRKNINGSDATO'] = df['VIRKNINGSDATO'].str[:10]  # cut meaningless timestamp off
         validator.check_afregningsdata(df)
         df.loc[:, 'ISMATCHED_BOOL'] = df['ISMATCHED'] != 'NO'  # bool value for PSRM match
+        rename = {'CUR_AMT': 'AMOUNT'}
+        df.rename(columns=rename, inplace=True)
         return df
 
     @property
@@ -50,10 +52,11 @@ class PSRM_CI_FT_BASE:
 
     @property
     def udtraeksdata(self):
+        rename = {'NyMF_ID': 'NYMFID', 'Amount': 'AMOUNT'}
         df = self.sheets['Udtræk NCO'].copy()  # load and format PSRM Afregning
         df = df[~df['NyMF_ID'].isnull()]  # remove events with no NYMFID
         df['NyMF_ID'] = df['NyMF_ID'].astype('int64')  # make ID INT
-        df.rename(columns={'NyMF_ID': 'NYMFID'}, inplace=True)
+        df.rename(columns=rename, inplace=True)
         df['TransDTTM_dt'] = pd.to_datetime(df['TransDTTM'])
         df['TransDTTM_value'] = df['TransDTTM_dt'].view('int64')
         return df
