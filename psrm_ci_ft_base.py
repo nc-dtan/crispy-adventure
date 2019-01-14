@@ -58,3 +58,10 @@ class PSRM_CI_FT_BASE:
 if __name__ == '__main__':
     psrm = PSRM_CI_FT_BASE('../data')
     afregning = psrm.afregning
+    def get_random_nymfid(df):
+        return df.sample(1).NYMFID.values[0]
+
+    data = psrm.get_by_id(get_random_nymfid(afregning))
+    print('Afregning\n', data[0])
+    print('Underretning\n', data[1])
+    print('Udtraek\n', data[2])
