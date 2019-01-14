@@ -1,6 +1,9 @@
 import os
 import pandas as pd
 import validator
+from afregning import Afregning
+from underretning import Underretning
+from udtraek import Udtraek
 
 
 class PSRM_CI_FT_BASE:
@@ -39,9 +42,10 @@ class PSRM_CI_FT_BASE:
 
     @property
     def underretning(self):
+        rename = {'EFIFORDRINGIDENTIFIKATOR': 'NYMFID'}
         df = self.sheets['Afregning_Underretning'].copy()
         validator.check_underretning(df)
-        df.rename(columns={'EFIFORDRINGIDENTIFIKATOR': 'NYMFID'}, inplace=True)
+        df.rename(columns=rename, inplace=True)
         return df
 
     @property
@@ -59,7 +63,7 @@ class PSRM_CI_FT_BASE:
         afregn = self.afregning[self.afregning.NYMFID == id]
         underret = self.underretning[self.underretning.NYMFID == id]
         udtraek = self.udtraeksdata[self.udtraeksdata.NYMFID == id]
-        return afregn, underret, udtraek
+        return Afregning(afregn), Underretning(underret), Udtraek(udtraek)
 
 
 if __name__ == '__main__':
@@ -68,7 +72,7 @@ if __name__ == '__main__':
     def get_random_nymfid(df):
         return df.sample(1).NYMFID.values[0]
 
-    data = psrm.get_by_id(get_random_nymfid(afregning))
-    print('Afregning\n', data[0])
-    print('Underretning\n', data[1])
-    print('Udtraek\n', data[2])
+    af, un, ud = psrm.get_by_id(get_random_nymfid(afregning))
+    print('Afregning\n', af)
+    print('Underretning\n', un)
+    print('Udtraek\n', ud)
