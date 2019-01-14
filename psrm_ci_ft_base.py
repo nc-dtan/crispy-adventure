@@ -34,6 +34,7 @@ class PSRM_CI_FT_BASE:
     def underretning(self):
         df = self.sheets['Afregning_Underretning'].copy()
         validator.check_underretning(df)
+        df.rename(columns={'EFIFORDRINGIDENTIFIKATOR': 'NYMFID'}, inplace=True)
         return df
 
     @property
@@ -41,6 +42,7 @@ class PSRM_CI_FT_BASE:
         df = self.sheets['Udtræk NCO'].copy()  # load and format PSRM Afregning
         df = df[~df['NyMF_ID'].isnull()]  # remove events with no NYMFID
         df['NyMF_ID'] = df['NyMF_ID'].astype('int64')  # make ID INT
+        df.rename(columns={'NyMF_ID': 'NYMFID'}, inplace=True)
         df['TransDTTM_dt'] = pd.to_datetime(df['TransDTTM'])
         df['TransDTTM_value'] = df['TransDTTM_dt'].view('int64')
         return df
