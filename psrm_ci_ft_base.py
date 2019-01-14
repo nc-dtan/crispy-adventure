@@ -47,6 +47,13 @@ class PSRM_CI_FT_BASE:
         df['TransDTTM_value'] = df['TransDTTM_dt'].view('int64')
         return df
 
+    def get_by_id(self, id):
+        """Given a NYMFID return afregn, underret, and udtraek"""
+        afregn = self.afregning[self.afregning.NYMFID == id]
+        underret = self.underretning[self.underretning.NYMFID == id]
+        udtraek = self.udtraeksdata[self.udtraeksdata.NYMFID == id]
+        return afregn, underret, udtraek
+
 
 if __name__ == '__main__':
     psrm = PSRM_CI_FT_BASE('../data')
