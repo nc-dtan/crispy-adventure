@@ -52,7 +52,7 @@ def check_NYMFID(nymfid):
                 assert afstemt == False
                 report['ERROR'] = 'OR_PS_PX'
     return report
-    
+
 def get_report(fname='report.csv', ncpus=1):
     # uses global nymfids and path
     if not os.path.exists(os.path.join(path, fname)):

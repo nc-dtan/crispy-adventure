@@ -9,7 +9,7 @@ class Udtraek(Data):
     @property
     def sum_amount(self):
         idx = [is_integer(a) for a in self.df['Parent']]
-        return sum(self.df.loc[idx, 'AMOUNT'])
+        return round(sum(self.df.loc[idx, 'AMOUNT']), 2)
 
     def duplicate_transDTTM(self):
         idx = self.df.TransDTTM.duplicated()
