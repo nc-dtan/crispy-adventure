@@ -1,9 +1,12 @@
 import psrm_ci_ft_base
-import os, multiprocessing, pandas, tqdm
+import os, multiprocessing, pandas, tqdm, git
 
 print('Under development!')
 
 path = '../Data'  # local path
+repo = git.Repo(search_parent_directories=True)
+sha = repo.head.object.hexsha
+print(sha[:7])
 
 # cache afregning and underretning
 if (not os.path.exists(os.path.join(path, 'afregning.pkl')) or
@@ -100,7 +103,6 @@ def df_to_excel(df, fname='report.xlsx'):
     writer.save()
     
 def get_report(fname='report.csv', ids=None, path=None, ncpus=1, force=False):
-    # uses global nymfids and path
     if not os.path.exists(os.path.join(path, fname)) or force:
         print('creating report')
         if ncpus > 1:
@@ -114,8 +116,9 @@ def get_report(fname='report.csv', ids=None, path=None, ncpus=1, force=False):
     report = pandas.read_csv(os.path.join(path, fname))
     return report
 
-
 report = get_report(ids=nymfids, path=path, ncpus=8)
+
+
 
 
 #not_ballanced = report[~report['BALLANCED']]

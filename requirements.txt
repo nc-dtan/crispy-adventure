@@ -17,3 +17,5 @@ six==1.12.0
 traitlets==4.3.2
 wcwidth==0.1.7
 xlrd==1.2.0
+gitpython==2.1.11
+xlsxwriter==1.1.2
