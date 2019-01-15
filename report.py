@@ -25,9 +25,7 @@ nymfids = afregning['NYMFID'].unique()
 def check_NYMFID(nymfid):
     underret = underretning[underretning['NYMFID'] == nymfid]
     afregn = afregning[afregning['NYMFID'] == nymfid]
-
     report = {'NYMFID': nymfid, 'ERRORTYPE': ''}
-    afregn = afregning[afregning['NYMFID'] == nymfid]
 
     # time collision
     if len(afregn) > 1:
@@ -41,10 +39,10 @@ def check_NYMFID(nymfid):
     report['ALL_ISMATCHED'] = matched.iloc[0]
 
     # cash ballance
-    afstemt = (round(sum(afregn['CUR_AMT']), 2) ==
+    afstemt = (round(sum(afregn['AMOUNT']), 2) ==
                round(sum(underret['AMOUNT']), 2))
     report['BALLANCED'] = afstemt
-    
+
     # ERRORS
     if any(underret['DMIFordringTypeKategori'] == 'OR'):
         ps = len(afregn[afregn['FT_TYPE_FLG'] == 'PS'])
@@ -60,7 +58,7 @@ def get_report(fname='report.csv', ncpus=1):
     # uses global nymfids and path
     if not os.path.exists(os.path.join(path, fname)):
         if ncpus > 1:
-            with multiprocessing.Pool(processes=8) as pool:
+            with multiprocessing.Pool(processes=ncpus) as pool:
                 report = pool.map(check_NYMFID, nymfids)
         else:
             report = [check_NYMFID(x) for x in tqdm.tqdm(nymfids)]
@@ -81,13 +79,13 @@ report = get_report(ncpus=8)
 #        kollision = not afregn['TRANSAKTIONSDATO'].is_unique
 #        if kollision:
 #            assert False
-#        
+#
 
-# generel fejl, nok ikke pga. af OR specifikt error at paybacks and 'OR' 
+# generel fejl, nok ikke pga. af OR specifikt error at paybacks and 'OR'
 # claimant type.
 #
 # samtidighedsfejl: [11:10 AM] Emil Joachim Pedersen
-# Og det behøver ikke være alle betalinger, men så længe der er 2 med 
+# Og det behøver ikke være alle betalinger, men så længe der er 2 med
 # samme transaktion dato går den i ged
 #
 # la Cour: liste over nymfid-grupper med ISMATHED==NO
