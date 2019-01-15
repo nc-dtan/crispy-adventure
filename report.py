@@ -89,22 +89,7 @@ def check_NYMFID(nymfid):
     
     # no error found
     return report
-    
-def get_report(fname='report.csv', nymfids=None, ncpus=1, force=False):
-    # uses global nymfids and path
-    if not os.path.exists(os.path.join(path, fname)) or force:
-        print('creating report')
-        if ncpus > 1:
-            with multiprocessing.Pool(processes=ncpus) as pool:
-                report = pool.map(check_NYMFID, nymfids)
-        else:
-            report = [check_NYMFID(x) for x in tqdm.tqdm(nymfids)]
-        report = pandas.DataFrame(report).set_index('NYMFID')
-        report.to_csv(os.path.join(path, fname))
-    report = pandas.read_csv(os.path.join(path, fname))
-    return report
 
-# not done
 def df_to_excel(df, fname='report.xlsx'):
     sheet_path = os.path.join(path, fname)
     print('saving xlsx', sheet_path)
@@ -113,9 +98,25 @@ def df_to_excel(df, fname='report.xlsx'):
     worksheet = writer.sheets[fname.split('.')[0]]
     worksheet.autofilter(0, 0, df.shape[0], df.shape[1]-1)
     writer.save()
+    
+def get_report(fname='report.csv', ids=None, path=None, ncpus=1, force=False):
+    # uses global nymfids and path
+    if not os.path.exists(os.path.join(path, fname)) or force:
+        print('creating report')
+        if ncpus > 1:
+            with multiprocessing.Pool(processes=ncpus) as pool:
+                report = pool.map(check_NYMFID, ids)
+        else:
+            report = [check_NYMFID(x) for x in tqdm.tqdm(ids)]
+        report = pandas.DataFrame(report).set_index('NYMFID')
+        report.to_csv(os.path.join(path, fname))
+        df_to_excel(report)
+    report = pandas.read_csv(os.path.join(path, fname))
+    return report
 
-report = get_report(ncpus=8, nymfids=nymfids)
-df_to_excel(report)
+
+report = get_report(ids=nymfids, path=path, ncpus=8)
+
 
 #not_ballanced = report[~report['BALLANCED']]
 ##for nymfid, g in tqdm.tqdm(not_ballanced.groupby('NYMFID')):
