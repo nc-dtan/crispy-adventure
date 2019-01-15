@@ -60,15 +60,20 @@ class PSRM_CI_FT_BASE:
 
     def id_check(self, id):
         af, un, ud = self.get_by_id(id)
+        print('-'*80)
+        print('Afregning\n')
         print(af)
-        print('\n')
+        print('-'*80)
+        print('Underretning\n')
         print(un)
-        print('\n')
+        print('-'*80)
+        print('Udtræk\n')
         print(ud)
-        print('\n')
+        print('-'*80)
         print('Sum of AFR: %.2f' % af.sum_amount)
         print('Sum of UND: %.2f' % un.sum_amount)
         print('Sum of UDT: %.2f' % ud.sum_amount)
+        print('-'*80)
 
 
 if __name__ == '__main__':
