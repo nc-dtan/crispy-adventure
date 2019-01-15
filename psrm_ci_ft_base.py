@@ -1,4 +1,5 @@
 import os
+import pickle
 import pandas as pd
 import validator
 from afregning import Afregning
@@ -32,17 +33,6 @@ class PSRM_CI_FT_BASE:
         return df
 
     @property
-    def NyMF_errors(self):
-        af = self.afregning[['NYMFID', 'ISMATCHED']]
-        errors = pd.DataFrame(af['NYMFID'].drop_duplicates())
-        errors['ISMATCHED'] = True
-        for nymfid, g in af.groupby('NYMFID'):
-            if any(g['ISMATCHED'] == 'NO'):
-                errors.loc[errors['NYMFID']==nymfid,'ISMATCHED'] = False
-        assert errors['NYMFID'].is_unique
-        return errors
-
-    @property
     def underretning(self):
         rename = {'EFIFORDRINGIDENTIFIKATOR': 'NYMFID'}
         df = self.sheets['Afregning_Underretning'].copy()
@@ -70,7 +60,14 @@ class PSRM_CI_FT_BASE:
 
 
 if __name__ == '__main__':
-    psrm = PSRM_CI_FT_BASE('../data')
+    if os.path.exists('psrm.pkl'):
+        with open('psrm.pkl', 'rb') as f:
+            psrm = pickle.load(f)
+    else:
+        psrm = PSRM_CI_FT_BASE('../data')
+        with open('psrm.pkl') as f:
+            pickle.dump(psrm, f)
+
     afregning = psrm.afregning
     def get_random_nymfid(df):
         return df.sample(1).NYMFID.values[0]

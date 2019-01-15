@@ -1,6 +1,7 @@
 # Own ignores
 data/
 *.xlsx
+*.pkl
 
 
 # Byte-compiled / optimized / DLL files
@@ -107,3 +108,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# vim
+*.swp
