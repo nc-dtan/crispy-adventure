@@ -58,6 +58,18 @@ class PSRM_CI_FT_BASE:
         udtraek = self.udtraeksdata[self.udtraeksdata.NYMFID == id]
         return Afregning(afregn), Underretning(underret), Udtraek(udtraek)
 
+    def id_check(self, id):
+        af, un, ud = self.get_by_id(id)
+        print(af)
+        print('\n')
+        print(un)
+        print('\n')
+        print(ud)
+        print('\n')
+        print('Sum of AFR: %.2f' % af.sum_amount)
+        print('Sum of UND: %.2f' % un.sum_amount)
+        print('Sum of UDT: %.2f' % ud.sum_amount)
+
 
 if __name__ == '__main__':
     if os.path.exists('psrm.pkl'):
@@ -68,11 +80,7 @@ if __name__ == '__main__':
         with open('psrm.pkl') as f:
             pickle.dump(psrm, f)
 
-    afregning = psrm.afregning
     def get_random_nymfid(df):
         return df.sample(1).NYMFID.values[0]
 
-    af, un, ud = psrm.get_by_id(get_random_nymfid(afregning))
-    print('Afregning\n', af)
-    print('Underretning\n', un)
-    print('Udtraek\n', ud)
+    af, un, ud = psrm.id_check(get_random_nymfid(afregning))
