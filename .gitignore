@@ -1,6 +1,7 @@
 # Own ignores
 data/
 *.xlsx
+*.pkl
 
 
 # Byte-compiled / optimized / DLL files
