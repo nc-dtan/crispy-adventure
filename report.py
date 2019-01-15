@@ -63,6 +63,7 @@ def check_NYMFID(nymfid):
             if len(afregn) != len(underret):
                 assert afstemt == False
                 report['ERROR'] = 'OR_PS_PX'
+<<<<<<< HEAD
                 return report
 
     if ps != px and ps + px > 2:

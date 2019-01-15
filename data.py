@@ -10,4 +10,4 @@ class Data:
 
     @property
     def sum_amount(self):
-        return sum(self.df['AMOUNT'])
+        return round(sum(self.df['AMOUNT']), 2)
