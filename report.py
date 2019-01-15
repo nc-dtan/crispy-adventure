@@ -3,7 +3,7 @@ import os, multiprocessing, pandas, tqdm
 
 print('Under development!')
 
-path = '/mnt/c/Users/MAEN/Documents/PSRM_CI_FT_BASE/'  # local path
+path = '../Data'  # local path
 
 # cache afregning and underretning
 if (not os.path.exists(os.path.join(path, 'afregning.pkl')) or
@@ -49,7 +49,18 @@ def check_NYMFID(nymfid):
                round(sum(underret['AMOUNT']), 2))
     report['BALLANCED'] = afstemt
 
-    # ERRORS, only one error should be returned
+    # miss match payid
+    for i in range(len(afregn)):
+        seg = afregn['PAY_SEG_ID'].iloc[i]
+        event = afregn['PAY_EVENT_ID'].iloc[i]
+        t1 = any(underret['EFIBETALINGSIDENTIFIKATOR'] == seg)
+        t2 = any(underret['EFIBETALINGSIDENTIFIKATOR'] == event)
+        if t1 or t2:
+            report['MISSING_PAY_ID'] = False
+        else:
+            report['MISSING_PAY_ID'] = True
+
+    # ERRORS, sequential (early return)
     if len(afregn) and not len(underret):
         report['ERROR'] = 'MISSING_UNDERRET'
         return report
@@ -68,31 +79,15 @@ def check_NYMFID(nymfid):
         if all(underret['DMIFordringTypeKategori'] == 'HF'):
             if not afstemt == False:
                 pass
-    
-    for i in range(len(afregn)):
-        seg = afregn['PAY_SEG_ID'].iloc[i]
-        event = afregn['PAY_EVENT_ID'].iloc[i]
-        t1 = any(underret['EFIBETALINGSIDENTIFIKATOR'] == seg)
-        t2 = any(underret['EFIBETALINGSIDENTIFIKATOR'] == event)
-        if t1 or t2:
-            continue
-        else:
-            report['ERROR'] = 'MISSING_PAY_ID'
-            
 
-#    for payid in payids:
-#        if not any(underret['EFIBETALINGSIDENTIFIKATOR'] == payid):
-#            report['ERROR'] = 'MISSING_PAY_ID'
-
-
-    # ERRORS TO FIND
+    # TODO: ERRORS
     # early first WDEX leads to false payment, but not always!!
 
     # DOORSTOPS
     if ps < px:  # cannot be more send backs than payments
         raise NotImplementedError
     
-    # return report normally
+    # no error found
     return report
     
 def get_report(fname='report.csv', nymfids=None, ncpus=1, force=False):
