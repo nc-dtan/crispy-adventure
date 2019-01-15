@@ -23,17 +23,22 @@ def check_NYMFID(nymfid):
     afregn = afregning[afregning['NYMFID'] == nymfid]
     report = {'NYMFID': nymfid, 'ERROR': ''}
 
-    # time collision
+    # trans time collision
     if len(afregn) > 1:
         time_collision = not afregn['TRANSAKTIONSDATO'].is_unique
     else:
         time_collision = False
-    report['TIME_COLLISION'] = time_collision
+    report['TRANS_COLLISION'] = time_collision
+
+    # virk time collision
+    if len(afregn) > 1:
+        virk_time_collision = not afregn['VIRKNINGSDATO'].is_unique
+    else:
+        virk_time_collision = False
+    report['VIRK_COLLISION'] = virk_time_collision
 
     # ISMATCHED == NO in group
-    ismatched = NyMF_errors[NyMF_errors['NYMFID'] == nymfid]['ISMATCHED']
-    assert ismatched.iloc[0] != any(afregn['ISMATCHED'] == 'NO')
-    report['ISMATCHED'] = ismatched.iloc[0]
+    report['ISMATCHED'] = not any(afregn['ISMATCHED'] == 'NO')
 
     # PSRM_MATCHED == NO in group
     pmatched = not any(underret['PSRM_MATCHED'] == 'NO')
@@ -63,10 +68,30 @@ def check_NYMFID(nymfid):
         if all(underret['DMIFordringTypeKategori'] == 'HF'):
             if not afstemt == False:
                 pass
+    
+    for i in range(len(afregn)):
+        seg = afregn['PAY_SEG_ID'].iloc[i]
+        event = afregn['PAY_EVENT_ID'].iloc[i]
+        t1 = any(underret['EFIBETALINGSIDENTIFIKATOR'] == seg)
+        t2 = any(underret['EFIBETALINGSIDENTIFIKATOR'] == event)
+        if t1 or t2:
+            continue
+        else:
+            report['ERROR'] = 'MISSING_PAY_ID'
+            
 
-    if ps < px:  # cannot be more send backs than payments!
+#    for payid in payids:
+#        if not any(underret['EFIBETALINGSIDENTIFIKATOR'] == payid):
+#            report['ERROR'] = 'MISSING_PAY_ID'
+
+
+    # ERRORS TO FIND
+    # early first WDEX leads to false payment, but not always!!
+
+    # DOORSTOPS
+    if ps < px:  # cannot be more send backs than payments
         raise NotImplementedError
-
+    
     # return report normally
     return report
     
