@@ -1,4 +1,5 @@
 import os
+import pickle
 import pandas as pd
 import validator
 from afregning import Afregning
@@ -70,7 +71,14 @@ class PSRM_CI_FT_BASE:
 
 
 if __name__ == '__main__':
-    psrm = PSRM_CI_FT_BASE('../data')
+    if os.path.exists('psrm.pkl'):
+        with open('psrm.pkl', 'rb') as f:
+            psrm = pickle.load(f)
+    else:
+        psrm = PSRM_CI_FT_BASE('../data')
+        with open('psrm.pkl') as f:
+            pickle.dump(psrm, f)
+
     afregning = psrm.afregning
     def get_random_nymfid(df):
         return df.sample(1).NYMFID.values[0]
