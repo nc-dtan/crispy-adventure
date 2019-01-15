@@ -4,7 +4,7 @@ from utils import is_integer
 
 class Udtraek(Data):
     def __init__(self, df):
-        self.df = df[['TransDTTM', 'EffectiveDate', 'NYMFID', 'Parent', 'Sibling_ID', 'AMOUNT', 'FT_FLG']]
+        self.df = df[['TransDTTM', 'EffectiveDate', 'NYMFID', 'Parent', 'Sibling_ID', 'AMOUNT', 'FT_FLG']].copy()
         self.df.sort_values('TransDTTM', inplace=True)
 
     @property
