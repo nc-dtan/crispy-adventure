@@ -20,7 +20,10 @@ afregning = pandas.read_pickle(os.path.join(path, 'afregning.pkl'))
 underretning = pandas.read_pickle(os.path.join(path, 'underretning.pkl'))
 NyMF_errors = pandas.read_pickle(os.path.join(path, 'NyMF_errors.pkl'))
 
-nymfids = afregning['NYMFID'].unique()
+nymfids_1 = set(afregning['NYMFID'].unique())
+nymfids_2 = set(underretning['NYMFID'].unique())
+nymfids = list(nymfids_1.union(nymfids_2))
+
 
 def check_NYMFID(nymfid):
     underret = underretning[underretning['NYMFID'] == nymfid]
@@ -30,7 +33,7 @@ def check_NYMFID(nymfid):
     # time collision
     if len(afregn) > 1:
         time_collision = not afregn['TRANSAKTIONSDATO'].is_unique
-    elif len(afregn) == 1:
+    else:
         time_collision = False
     report['TIME_COLLISION'] = time_collision
 
@@ -43,38 +46,57 @@ def check_NYMFID(nymfid):
                round(sum(underret['AMOUNT']), 2))
     report['BALLANCED'] = afstemt
 
-    # ERRORS
-    if any(underret['DMIFordringTypeKategori'] == 'OR'):
-        ps = len(afregn[afregn['FT_TYPE_FLG'] == 'PS'])
-        px = len(afregn[afregn['FT_TYPE_FLG'] == 'PX'])
-        if ps == px:
+    # ERRORS, only one error should be returned
+    if len(afregn) and not len(underret):
+        report['ERROR'] = 'MISSING_UNDERRET'
+        return report
+
+    if len(underret) and not len(afregn):
+        report['ERROR'] = 'MISSING_AFREGN'
+        return report
+        
+    ps = len(afregn[afregn['FT_TYPE_FLG'] == 'PS'])
+    px = len(afregn[afregn['FT_TYPE_FLG'] == 'PX'])
+
+    if ps == px:
+        if any(underret['DMIFordringTypeKategori'] == 'OR'):
             if len(afregn) != len(underret):
                 assert afstemt == False
                 report['ERROR'] = 'OR_PS_PX'
-    return report
+<<<<<<< HEAD
+                return report
 
-def get_report(fname='report.csv', ncpus=1):
+    if ps != px and ps + px > 2:
+        if all(underret['DMIFordringTypeKategori'] == 'HF'):
+            if not afstemt == False:
+                print('nyfejl forkert', nymfid)
+    
+def get_report(fname='report.csv', ncpus=1, force=False):
     # uses global nymfids and path
-    if not os.path.exists(os.path.join(path, fname)):
+    if not os.path.exists(os.path.join(path, fname)) or force:
         print('creating report')
         if ncpus > 1:
             with multiprocessing.Pool(processes=ncpus) as pool:
                 report = pool.map(check_NYMFID, nymfids)
         else:
             report = [check_NYMFID(x) for x in tqdm.tqdm(nymfids)]
-        report = pandas.DataFrame(report).set_index('NYMFID')
+        #report = pandas.DataFrame(report).set_index('NYMFID')
+        report = pandas.DataFrame(report)
         report.to_csv(os.path.join(path, fname))
     report = pandas.read_csv(os.path.join(path, fname))
     return report
 
-report = get_report(ncpus=8)
-sheet_path = os.path.join(path, 'report.xlsx')
-writer = pandas.ExcelWriter(sheet_path, engine='xlsxwriter')
-report.to_excel(writer, sheet_name='report', index=False)
-workbook  = writer.book
-worksheet = writer.sheets['report']
-worksheet.autofilter(0, 0, report.shape[0], report.shape[1])
-writer.save()
+# not done
+def df_to_excel(df):
+    sheet_path = os.path.join(path, 'report.xlsx')
+    writer = pandas.ExcelWriter(sheet_path, engine='xlsxwriter')
+    report.to_excel(writer, sheet_name='report', index=False)
+    workbook  = writer.book
+    worksheet = writer.sheets['report']
+    worksheet.autofilter(0, 0, report.shape[0], report.shape[1])
+    writer.save()
+
+#report = get_report(ncpus=8)
 
 #not_ballanced = report[~report['BALLANCED']]
 ##for nymfid, g in tqdm.tqdm(not_ballanced.groupby('NYMFID')):
