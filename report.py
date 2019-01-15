@@ -57,8 +57,9 @@ def check_NYMFID(nymfid):
     return report
 
 def get_report(fname='report.csv', ncpus=1):
+    # uses global nymfids and path
     if not os.path.exists(os.path.join(path, fname)):
-        if ncups > 1:
+        if ncpus > 1:
             with multiprocessing.Pool(processes=8) as pool:
                 report = pool.map(check_NYMFID, nymfids)
         else:
@@ -68,7 +69,7 @@ def get_report(fname='report.csv', ncpus=1):
     report = pandas.read_csv(os.path.join(path, fname))
     return report
 
-report = get_report()
+report = get_report(ncpus=8)
 
 
 #not_ballanced = report[~report['BALLANCED']]
