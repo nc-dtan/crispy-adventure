@@ -32,17 +32,6 @@ class PSRM_CI_FT_BASE:
         return df
 
     @property
-    def NyMF_errors(self):
-        af = self.afregning[['NYMFID', 'ISMATCHED']]
-        errors = pd.DataFrame(af['NYMFID'].drop_duplicates())
-        errors['ISMATCHED'] = True
-        for nymfid, g in af.groupby('NYMFID'):
-            if any(g['ISMATCHED'] == 'NO'):
-                errors.loc[errors['NYMFID']==nymfid,'ISMATCHED'] = False
-        assert errors['NYMFID'].is_unique
-        return errors
-
-    @property
     def underretning(self):
         rename = {'EFIFORDRINGIDENTIFIKATOR': 'NYMFID'}
         df = self.sheets['Afregning_Underretning'].copy()
