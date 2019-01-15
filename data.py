@@ -7,3 +7,7 @@ class Data:
 
     def __repr__(self):
         return self.df.to_string()
+
+    @property
+    def sum_amount(self):
+        return sum(self.df['AMOUNT'])
