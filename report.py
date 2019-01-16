@@ -103,15 +103,14 @@ def df_to_excel(df, fname=None):
     df.to_excel(writer, sheet_name=fname.split('.')[0], index=False)
     worksheet = writer.sheets[fname.split('.')[0]]
 
-
-    #worksheet.set_column(0, df.shape[1]-1, 20)
+    worksheet.set_column(0, df.shape[1]-1, 20)
     #writer.book.nan_inf_to_errors = True
-    worksheet.add_table(0, 0, df.shape[0], df.shape[1]-1,
-                        {'header_row': False,
-                         'autofilter': False,
-                         'data': df.values.tolist(),
-                        },
-    )
+#    worksheet.add_table(0, 0, df.shape[0], df.shape[1]-1,
+#                        {'header_row': False,
+#                         'autofilter': False,
+#                         'data': df.values.tolist(),
+#                        },
+#    )
     worksheet.autofilter(0, 0, df.shape[0], df.shape[1]-1)
     writer.save()
     
