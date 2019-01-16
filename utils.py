@@ -9,5 +9,5 @@ def is_integer(a):
     return True
 
 
-def convert_from_str(date):
+def convert_date_from_str(date):
     return parser.parse(date)
