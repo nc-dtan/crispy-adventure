@@ -1,5 +1,7 @@
 import psrm_ci_ft_base
 import os, multiprocessing, pandas, tqdm, git
+from xlsxwriter.utility import xl_rowcol_to_cell
+
 
 print('Under development!')
 
@@ -24,7 +26,7 @@ nymfids = afregning['NYMFID'].unique()
 def check_NYMFID(nymfid):
     underret = underretning[underretning['NYMFID'] == nymfid]
     afregn = afregning[afregning['NYMFID'] == nymfid]
-    report = {'NYMFID': nymfid, 'ERROR': ''}
+    report = {'NYMFID': nymfid, 'ERROR': 'NO'}
 
     # trans time collision
     if len(afregn) > 1:
@@ -93,13 +95,24 @@ def check_NYMFID(nymfid):
     # no error found
     return report
 
+
 def df_to_excel(df, fname='report.xlsx'):
     sheet_path = os.path.join(path, fname)
     print('saving xlsx', sheet_path)
     writer = pandas.ExcelWriter(sheet_path, engine='xlsxwriter')
     df.to_excel(writer, sheet_name=fname.split('.')[0], index=False)
     worksheet = writer.sheets[fname.split('.')[0]]
-    worksheet.autofilter(0, 0, df.shape[0], df.shape[1]-1)
+
+
+    #worksheet.autofilter(0, 0, df.shape[0], df.shape[1]-1)
+    #worksheet.set_column(0, df.shape[1]-1, 20)
+    writer.book.nan_inf_to_errors = True
+    worksheet.add_table(0, 0, df.shape[0], df.shape[1]-1,
+                        {'header_row': False,
+                         'autofilter': True,
+                         'data': df.values.tolist(),
+                        },
+    )
     writer.save()
     
 def get_report(fname='report.csv', ids=None, path=None, ncpus=1, force=False):
@@ -117,6 +130,7 @@ def get_report(fname='report.csv', ids=None, path=None, ncpus=1, force=False):
     return report
 
 report = get_report(ids=nymfids, path=path, ncpus=8)
+df_to_excel(report)
 
 
 
