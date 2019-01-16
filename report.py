@@ -4,7 +4,7 @@ import psrm_ci_ft_base
 
 
 print('Under development!')
-path = '../Data/v2/'  # local path
+path = '../Data/v1/'  # local path
 repo = git.Repo(search_parent_directories=True)
 today = datetime.datetime.today().strftime('%d-%m-%Y')
 sha = repo.head.object.hexsha
@@ -14,7 +14,7 @@ print(today, sha[:7])
 if (not os.path.exists(os.path.join(path, 'afregning.pkl')) or
     not os.path.exists(os.path.join(path, 'underretning.pkl'))):
     print('creating cache')
-    psrm = psrm_ci_ft_base.PSRM_CI_FT_BASE(path, multi_sheets=True)
+    psrm = psrm_ci_ft_base.PSRM_CI_FT_BASE(path, multi_sheets=None)
     psrm.afregning.to_pickle(os.path.join(path, 'afregning.pkl'))
     psrm.underretning.to_pickle(os.path.join(path, 'underretning.pkl'))
 
@@ -97,25 +97,26 @@ def check_NYMFID(nymfid):
 
 
 def df_to_excel(df, fname=None):
-    sheet_path = os.path.join(path, fname)
+    sheet_path = os.path.join(path, fname+'.xlsx')
     print('saving xlsx', sheet_path)
     writer = pandas.ExcelWriter(sheet_path, engine='xlsxwriter')
     df.to_excel(writer, sheet_name=fname.split('.')[0], index=False)
     worksheet = writer.sheets[fname.split('.')[0]]
 
 
-    #worksheet.autofilter(0, 0, df.shape[0], df.shape[1]-1)
     #worksheet.set_column(0, df.shape[1]-1, 20)
-    writer.book.nan_inf_to_errors = True
+    #writer.book.nan_inf_to_errors = True
     worksheet.add_table(0, 0, df.shape[0], df.shape[1]-1,
                         {'header_row': False,
-                         'autofilter': True,
+                         'autofilter': False,
                          'data': df.values.tolist(),
                         },
     )
+    worksheet.autofilter(0, 0, df.shape[0], df.shape[1]-1)
     writer.save()
     
 def get_report(fname=None, ids=None, path=None, ncpus=1, force=False):
+    print(fname)
     if not os.path.exists(os.path.join(path, fname)) or force:
         print('creating report')
         if ncpus > 1:
@@ -126,14 +127,12 @@ def get_report(fname=None, ids=None, path=None, ncpus=1, force=False):
         report = pandas.DataFrame(report).set_index('NYMFID')
         report.to_csv(os.path.join(path, fname))
         df_to_excel(report, fname=fname)
+        return report
     report = pandas.read_csv(os.path.join(path, fname))
     return report
 
-report_name = f'report_{today}_{sha[:7]}.xlsx'
+report_name = f'report_{today}_{sha[:7]}.csv'
 report = get_report(fname=report_name, ids=nymfids, path=path, ncpus=8)
-df_to_excel(report)
-
-
 
 
 #not_ballanced = report[~report['BALLANCED']]

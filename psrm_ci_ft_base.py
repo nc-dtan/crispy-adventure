@@ -24,14 +24,12 @@ class PSRM_CI_FT_BASE:
                 if multi_sheets[name] is None:
                     continue
                 sheet_path = os.path.join(self.path, multi_sheets[name][0])
-                print(sheet_path)
                 sheets[name] = pd.read_excel(sheet_path, multi_sheets[name][1])
 
             self.sheets = sheets
 
         elif fname is not None:
             self.fname = fname
-            print(os.path.join(self.path, self.fname))
             self.sheets = self._read_sheets(os.path.join(self.path, self.fname))
 
     def _read_sheets(self, fname):
