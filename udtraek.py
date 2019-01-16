@@ -28,15 +28,15 @@ class Udtraek(Data):
 
     def select_to_date(self, end_date):
         start_date = self.df['TransDTTM'].values[0]  # Sorted after dates, so first date is start date
-        return Udtraek(self.select_between_dates(start_date, end_date))
+        return self.select_between_dates(start_date, end_date)
 
     def select_from_date(self, start_date):
         end_date = self.df['TransDTTM'].values[-1]  # Sorted after dates, so last date is end date
-        return Udtraek(self.select_between_dates(start_date, end_date))
+        return self.select_between_dates(start_date, end_date)
 
     def select_on_date(self, date):
         if isinstance(date, str):
             date = convert_from_str(date)
         start_date = datetime(date.year, date.month, date.day)
         end_date = start_date + timedelta(days=1)
-        return Udtraek(self.select_between_dates(start_date, end_date))
+        return self.select_between_dates(start_date, end_date)
