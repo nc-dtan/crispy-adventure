@@ -4,7 +4,7 @@ import psrm_ci_ft_base
 
 
 print('Under development!')
-path = '../Data'  # local path
+path = '../Data/v2/'  # local path
 repo = git.Repo(search_parent_directories=True)
 today = datetime.datetime.today().strftime('%d-%m-%Y')
 sha = repo.head.object.hexsha
@@ -14,7 +14,7 @@ print(today, sha[:7])
 if (not os.path.exists(os.path.join(path, 'afregning.pkl')) or
     not os.path.exists(os.path.join(path, 'underretning.pkl'))):
     print('creating cache')
-    psrm = psrm_ci_ft_base.PSRM_CI_FT_BASE(path)
+    psrm = psrm_ci_ft_base.PSRM_CI_FT_BASE(path, multi_sheets=True)
     psrm.afregning.to_pickle(os.path.join(path, 'afregning.pkl'))
     psrm.underretning.to_pickle(os.path.join(path, 'underretning.pkl'))
 

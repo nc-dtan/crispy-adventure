@@ -9,10 +9,30 @@ from udtraek import Udtraek
 
 class PSRM_CI_FT_BASE:
 
-    def __init__(self, path, fname='PSRM_CI_FT_BASE.xlsx'):
+    def __init__(self, path, fname='PSRM_CI_FT_BASE.xlsx', multi_sheets=None):
         self.path = path
-        self.fname = fname
-        self.sheets = self._read_sheets(os.path.join(self.path, self.fname))
+        if multi_sheets is not None:
+            # preset data for the second data pull-out
+            multi_sheets = {
+              'PSRM Afregning': ['CI_FT_BASE.xlsx', 'Sheet1'],
+              'Afregning_Underretning': ['Afregninger.xlsx', 'Sheet1'],
+              'Udligning': ['Udligninger.xlsx', 'Sheet1'],
+              'Udtræk NCO': None,
+            }
+            sheets = {}
+            for name in multi_sheets:
+                if multi_sheets[name] is None:
+                    continue
+                sheet_path = os.path.join(self.path, multi_sheets[name][0])
+                print(sheet_path)
+                sheets[name] = pd.read_excel(sheet_path, multi_sheets[name][1])
+
+            self.sheets = sheets
+
+        elif fname is not None:
+            self.fname = fname
+            print(os.path.join(self.path, self.fname))
+            self.sheets = self._read_sheets(os.path.join(self.path, self.fname))
 
     def _read_sheets(self, fname):
         return pd.read_excel(fname, sheet_name=None)
