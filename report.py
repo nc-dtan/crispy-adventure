@@ -1,14 +1,14 @@
+import os, multiprocessing, datetime
+import pandas, tqdm, git
 import psrm_ci_ft_base
-import os, multiprocessing, pandas, tqdm, git
-from xlsxwriter.utility import xl_rowcol_to_cell
 
 
 print('Under development!')
-
 path = '../Data'  # local path
 repo = git.Repo(search_parent_directories=True)
+today = datetime.datetime.today().strftime('%d-%m-%Y')
 sha = repo.head.object.hexsha
-print(sha[:7])
+print(today, sha[:7])
 
 # cache afregning and underretning
 if (not os.path.exists(os.path.join(path, 'afregning.pkl')) or
@@ -96,7 +96,7 @@ def check_NYMFID(nymfid):
     return report
 
 
-def df_to_excel(df, fname='report.xlsx'):
+def df_to_excel(df, fname=None):
     sheet_path = os.path.join(path, fname)
     print('saving xlsx', sheet_path)
     writer = pandas.ExcelWriter(sheet_path, engine='xlsxwriter')
@@ -115,7 +115,7 @@ def df_to_excel(df, fname='report.xlsx'):
     )
     writer.save()
     
-def get_report(fname='report.csv', ids=None, path=None, ncpus=1, force=False):
+def get_report(fname=None, ids=None, path=None, ncpus=1, force=False):
     if not os.path.exists(os.path.join(path, fname)) or force:
         print('creating report')
         if ncpus > 1:
@@ -125,11 +125,12 @@ def get_report(fname='report.csv', ids=None, path=None, ncpus=1, force=False):
             report = [check_NYMFID(x) for x in tqdm.tqdm(ids)]
         report = pandas.DataFrame(report).set_index('NYMFID')
         report.to_csv(os.path.join(path, fname))
-        df_to_excel(report)
+        df_to_excel(report, fname=fname)
     report = pandas.read_csv(os.path.join(path, fname))
     return report
 
-report = get_report(ids=nymfids, path=path, ncpus=8)
+report_name = f'report_{today}_{sha[:7]}.xlsx'
+report = get_report(fname=report_name, ids=nymfids, path=path, ncpus=8)
 df_to_excel(report)
 
 
