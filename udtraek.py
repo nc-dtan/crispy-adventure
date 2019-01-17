@@ -1,6 +1,7 @@
 from data import Data
 from utils import is_integer, convert_date_from_str
 from datetime import datetime, timedelta
+from tqdm import tqdm
 
 
 class Udtraek(Data):
@@ -47,3 +48,22 @@ class Udtraek(Data):
         start_date = datetime(date.year, date.month, date.day)
         end_date = start_date + timedelta(days=1)
         return self.select_between_dates(start_date, end_date)
+
+    def multi_CATU(self):
+        res = []
+        cols = ['NYMFID', 'TRANSACTION_DATE', 'PARENT_ID']
+        temp = self.df.loc[:, cols]
+        nymfids = temp['NYMFID'].unique()
+        for nymfid in tqdm(nymfids):
+            d = temp.loc[temp['NYMFID'] == nymfid, :]
+            d = d.loc[d['PARENT_ID'] == 'DKCSHACT', :]
+            if len(d) < 3:
+                continue
+
+            timestamps = d['TRANSACTION_DATE'].unique()
+            for timestamp in timestamps:
+                if len(d.loc[d['TRANSACTION_DATE'] == timestamp, :]) == 3:
+                    # TODO: Make to a generator and yield nymfid instead.
+                    res.append(nymfid)
+                    break
+        return res
