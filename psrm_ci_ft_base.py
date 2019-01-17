@@ -17,7 +17,7 @@ class PSRM_CI_FT_BASE:
               'PSRM Afregning': ['CI_FT_BASE.xlsx', 'Sheet1'],
               'Afregning_Underretning': ['Afregninger.xlsx', 'Sheet1'],
               'Udligning': ['Udligninger.xlsx', 'Sheet1'],
-              'Udtræk NCO': ['Udtraek-NCO.xlsx', 'Sheet1'],
+              'Udtræk': ['Udtræk.xlsx', 'Sheet1'],
             }
             sheets = {}
             for name in multi_sheets:
@@ -68,12 +68,14 @@ class PSRM_CI_FT_BASE:
 
     @property
     def udtraeksdata(self):
-        rename = {'NyMF_ID': 'NYMFID', 'Amount': 'AMOUNT'}
-        df = self.sheets['Udtræk NCO'].copy()  # load and format PSRM Afregning
-        df = df[~df['NyMF_ID'].isnull()]  # remove events with no NYMFID
-        df['NyMF_ID'] = df['NyMF_ID'].astype('int64')  # make ID INT
+        rename = {'EXTERNAL_OBLIGATION_ID' : 'NYMFID'}
+        df = self.sheets['Udtræk'].copy()  # load and format PSRM Afregning
+        df = df[~df['EXTERNAL_OBLIGATION_ID'].isnull()]  # remove events with no NYMFID
+        df['EXTERNAL_OBLIGATION_ID'] = df['EXTERNAL_OBLIGATION_ID'].astype('int64')  # make ID INT
         df.rename(columns=rename, inplace=True)
-        df['TransDTTM_dt'] = pd.to_datetime(df['TransDTTM'])
+        df['EFFECTIVE_DATE'] = pd.to_datetime(df['EFFECTIVE_DATE'])
+        df['EFFECTIVE_DATE'] = df['EFFECTIVE_DATE'].dt.date
+        df['TransDTTM_dt'] = pd.to_datetime(df['TRANSACTION_DATE'])
         df['TransDTTM_value'] = df['TransDTTM_dt'].view('int64')
         return df
 
@@ -113,7 +115,7 @@ if __name__ == '__main__':
             psrm = pickle.load(f)
     else:
         psrm = PSRM_CI_FT_BASE('../data')
-        with open('psrm.pkl') as f:
+        with open('psrm.pkl', 'wb') as f:
             pickle.dump(psrm, f)
 
     def get_random_nymfid(df):
