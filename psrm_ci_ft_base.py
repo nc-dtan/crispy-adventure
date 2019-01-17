@@ -91,6 +91,7 @@ class PSRM_CI_FT_BASE:
         print('Afregning\n')
         print(af)
         print('-'*80)
+        print('Udligning\n')
         print(udl)
         print('-'*80)
         print('Underretning\n')
