@@ -37,6 +37,7 @@ class PSRM_CI_FT_BASE:
 
     @property
     def udligning(self):
+        # same as afregning
         rename = {'EFIFORDRINGIDENTIFIKATOR': 'NYMFID'}
         df = self.sheets['Udligning'].copy()
         validator.check_udligning(df)
