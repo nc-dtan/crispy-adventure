@@ -35,3 +35,9 @@ def check_underretning(df):
     assert is_date(df, 'VIRKNINGSDATO')
     assert not has_missing_values(df, 'EFIFORDRINGIDENTIFIKATOR')  # check no missing IDs
     assert is_type(df, 'EFIFORDRINGIDENTIFIKATOR', 'int64')
+
+
+def check_udligning(df):
+    assert is_date(df, 'VIRKNINGSDATO')
+    assert not has_missing_values(df, 'EFIFORDRINGIDENTIFIKATOR')  # check no missing IDs
+    assert is_type(df, 'EFIFORDRINGIDENTIFIKATOR', 'int64')
