@@ -86,7 +86,7 @@ class PSRM_CI_FT_BASE:
         return Afregning(afregn), Underretning(underret), Udligning(udlign), Udtraek(udtraek)
 
     def id_check(self, id):
-        af, un, ud, udl = self.get_by_id(id)
+        af, un, udl, ud = self.get_by_id(id)
         print('-'*80)
         print('Afregning\n')
         print(af)
