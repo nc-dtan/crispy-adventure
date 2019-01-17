@@ -1,34 +1,50 @@
-import os, multiprocessing, datetime
+import os, multiprocessing, datetime, pickle
 from timeit import default_timer as timer
 import pandas, git
 from tqdm import tqdm
 import psrm_ci_ft_base
 
 
-print('Under development!')
-path = '../Data/v2/'  # local path
+path = '../Data/v3/'  # local path
 repo = git.Repo(search_parent_directories=True)
 today = datetime.datetime.today().strftime('%d-%m-%Y')
 sha = repo.head.object.hexsha
 print(today, sha[:7])
 
-# cache afregning and underretning
-if (not os.path.exists(os.path.join(path, 'afregning.pkl')) or
-    not os.path.exists(os.path.join(path, 'underretning.pkl'))):
+psrm_path = os.path.join(path, 'psrm.pkl')
+if os.path.exists(psrm_path):
+    print('loading cache')
+    with open(psrm_path, 'rb') as f:
+        psrm = pickle.load(f)
+else:
     print('creating cache')
     psrm = psrm_ci_ft_base.PSRM_CI_FT_BASE(path, multi_sheets=True)
-    psrm.afregning.to_pickle(os.path.join(path, 'afregning.pkl'))
-    psrm.underretning.to_pickle(os.path.join(path, 'underretning.pkl'))
+    with open(psrm_path, 'wb') as f:
+        pickle.dump(psrm, f)
 
-afregning = pandas.read_pickle(os.path.join(path, 'afregning.pkl'))
-underretning = pandas.read_pickle(os.path.join(path, 'underretning.pkl'))
+afregning = psrm.afregning
+underretning = psrm.underretning
+udligning = psrm.udligning
 
 # only checking afregning NYMFIDs
 nymfids = afregning['NYMFID'].unique()
 def check_NYMFID(nymfid, ISMATCHED=False):
     underret = underretning[underretning['NYMFID'] == nymfid]
     afregn = afregning[afregning['NYMFID'] == nymfid]
-    report = {'NYMFID': nymfid, 'ERROR': 'NO'}
+    udlign = udligning[udligning['NYMFID'] == nymfid]
+
+    # attempt to match FORDRINGSHAVERID between 3 sheets
+    if len(underret['FORDRINGSHAVERID'].unique()) == 1:
+        fhid = underret['FORDRINGSHAVERID'].values[0]
+    elif len(udlign['FORDRINGSHAVERID'].unique()) == 1:
+        fhid = udlign['FORDRINGSHAVERID'].values[0]
+    elif len(udlign['FORDRINGSHAVERID'].unique()) == 0:
+        fhid = 'NO_FHID_FOUND'
+    else:
+        er = f'NYMFID: {nymfid}, {udlign["FORDRINGSHAVERID"].unique()}'
+        raise NotImplementedError(er)
+
+    report = {'NYMFID': nymfid, 'ERROR': 'NO', 'FHID': fhid}
 
     # trans time collision
     if len(afregn) > 1:
@@ -51,10 +67,15 @@ def check_NYMFID(nymfid, ISMATCHED=False):
         # PSRM_MATCHED == NO in group
         report['PSRM_MATCHED'] = not any(underret['PSRM_MATCHED'] == 'NO')
 
-    # cash ballance
-    afstemt = (round(sum(afregn['AMOUNT']), 2) ==
-               round(sum(underret['AMOUNT']), 2))
-    report['BALLANCED'] = afstemt
+    # underret cash ballance
+    und_afstemt = (round(sum(afregn['AMOUNT']), 2) ==
+                   round(sum(underret['AMOUNT']), 2))
+    report['UND_BALLANCED'] = und_afstemt
+
+    # udligning cash ballance
+    udl_afstemt = (round(sum(afregn['AMOUNT']), 2) ==
+                   round(sum(udlign['AMOUNT']), 2))
+    report['UDL_BALLANCED'] = udl_afstemt
 
     # miss match payid
     for i in range(len(afregn)):
@@ -78,17 +99,15 @@ def check_NYMFID(nymfid, ISMATCHED=False):
     if ps == px:
         if any(underret['DMIFordringTypeKategori'] == 'OR'):
             if len(afregn) != len(underret):
-                assert afstemt == False
+                assert und_afstemt == False
+                #assert udl_afstemt == False
                 report['ERROR'] = 'OR_PS_PX'
                 return report
 
     if ps != px and ps + px > 2:
-        if all(underret['DMIFordringTypeKategori'] == 'HF'):
-            if not afstemt == False:
-                pass
+        pass
 
-    # TODO: ERRORS
-    # early first WDEX leads to false payment, but not always!!
+    # TODO: early first WDEX leads to false payment, but not always!!
 
     # DOORSTOPS
     if ps < px:  # cannot be more send backs than payments
@@ -131,5 +150,5 @@ def get_report(report_path, ids=None, ncpus=1):
 start = timer()
 report_name = f'report_{today}_{sha[:7]}.pkl'
 report_path = os.path.join(path, report_name)
-report = get_report(report_path, ids=nymfids, ncpus=8)
+report = get_report(report_path, ids=nymfids, ncpus=12)
 print('total run time', round(timer() - start, 2))
