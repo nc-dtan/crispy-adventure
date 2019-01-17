@@ -1,10 +1,12 @@
 import os, multiprocessing, datetime
-import pandas, tqdm, git
+from timeit import default_timer as timer
+import pandas, git
+from tqdm import tqdm
 import psrm_ci_ft_base
 
 
 print('Under development!')
-path = '../Data/v1/'  # local path
+path = '../Data/v2/'  # local path
 repo = git.Repo(search_parent_directories=True)
 today = datetime.datetime.today().strftime('%d-%m-%Y')
 sha = repo.head.object.hexsha
@@ -14,7 +16,7 @@ print(today, sha[:7])
 if (not os.path.exists(os.path.join(path, 'afregning.pkl')) or
     not os.path.exists(os.path.join(path, 'underretning.pkl'))):
     print('creating cache')
-    psrm = psrm_ci_ft_base.PSRM_CI_FT_BASE(path, multi_sheets=None)
+    psrm = psrm_ci_ft_base.PSRM_CI_FT_BASE(path, multi_sheets=True)
     psrm.afregning.to_pickle(os.path.join(path, 'afregning.pkl'))
     psrm.underretning.to_pickle(os.path.join(path, 'underretning.pkl'))
 
@@ -23,7 +25,7 @@ underretning = pandas.read_pickle(os.path.join(path, 'underretning.pkl'))
 
 # only checking afregning NYMFIDs
 nymfids = afregning['NYMFID'].unique()
-def check_NYMFID(nymfid):
+def check_NYMFID(nymfid, ISMATCHED=False):
     underret = underretning[underretning['NYMFID'] == nymfid]
     afregn = afregning[afregning['NYMFID'] == nymfid]
     report = {'NYMFID': nymfid, 'ERROR': 'NO'}
@@ -42,12 +44,12 @@ def check_NYMFID(nymfid):
         virk_time_collision = False
     report['VIRK_COLLISION'] = virk_time_collision
 
-    # ISMATCHED == NO in group
-    report['ISMATCHED'] = not any(afregn['ISMATCHED'] == 'NO')
-
-    # PSRM_MATCHED == NO in group
-    pmatched = not any(underret['PSRM_MATCHED'] == 'NO')
-    report['PSRM_MATCHED'] = pmatched
+    if ISMATCHED:
+        # ISMATCHED == NO in group
+        report['ISMATCHED'] = not any(afregn['ISMATCHED'] == 'NO')
+    
+        # PSRM_MATCHED == NO in group
+        report['PSRM_MATCHED'] = not any(underret['PSRM_MATCHED'] == 'NO')
 
     # cash ballance
     afstemt = (round(sum(afregn['AMOUNT']), 2) ==
@@ -96,60 +98,38 @@ def check_NYMFID(nymfid):
     return report
 
 
-def df_to_excel(df, fname=None):
-    sheet_path = os.path.join(path, fname+'.xlsx')
-    print('saving xlsx', sheet_path)
+def df_to_excel(df, report_path=None):
+    sheet_path = report_path + '.xlsx'
     writer = pandas.ExcelWriter(sheet_path, engine='xlsxwriter')
-    df.to_excel(writer, sheet_name=fname.split('.')[0], index=False)
-    worksheet = writer.sheets[fname.split('.')[0]]
-
-    worksheet.set_column(0, df.shape[1]-1, 20)
-    #writer.book.nan_inf_to_errors = True
-#    worksheet.add_table(0, 0, df.shape[0], df.shape[1]-1,
-#                        {'header_row': False,
-#                         'autofilter': False,
-#                         'data': df.values.tolist(),
-#                        },
-#    )
-    worksheet.autofilter(0, 0, df.shape[0], df.shape[1]-1)
+    df.to_excel(writer, sheet_name='report')
+    worksheet = writer.sheets['report']
+    columns = [{'header': x} for x in df.columns.tolist()]
+    worksheet.add_table(0, 1, df.shape[0], df.shape[1],
+                        {'header_row': True,
+                         'autofilter': True,
+                         'data': df.values.tolist(),
+                         'columns': columns,
+                        },
+    )
+    worksheet.set_column(0, df.shape[1], 18)
     writer.save()
     
-def get_report(fname=None, ids=None, path=None, ncpus=1, force=False):
-    print(fname)
-    if not os.path.exists(os.path.join(path, fname)) or force:
-        print('creating report')
+def get_report(report_path, ids=None, ncpus=1):
+    if not os.path.exists(report_path):
         if ncpus > 1:
-            with multiprocessing.Pool(processes=ncpus) as pool:
-                report = pool.map(check_NYMFID, ids)
+            with multiprocessing.Pool(processes=ncpus) as p:
+                report = list(tqdm(p.imap(check_NYMFID, ids), total=len(ids)))
         else:
             report = [check_NYMFID(x) for x in tqdm.tqdm(ids)]
-        report = pandas.DataFrame(report).set_index('NYMFID')
-        report.to_csv(os.path.join(path, fname))
-        df_to_excel(report, fname=fname)
+        report = pandas.DataFrame(report)
+        report.to_pickle(report_path)
+        df_to_excel(report, report_path=report_path)
         return report
-    report = pandas.read_csv(os.path.join(path, fname))
+    report = pandas.read_pickle(report_path)
     return report
 
-report_name = f'report_{today}_{sha[:7]}.csv'
-report = get_report(fname=report_name, ids=nymfids, path=path, ncpus=8)
-
-
-#not_ballanced = report[~report['BALLANCED']]
-##for nymfid, g in tqdm.tqdm(not_ballanced.groupby('NYMFID')):
-#for nymfid, underret in not_ballanced.groupby('NYMFID'):
-#    afregn = afregning[afregning['NYMFID'] == nymfid]
-#    if len(afregn) > 1:
-#    #print(afregn['TRANSAKTIONSDATO'])
-#        kollision = not afregn['TRANSAKTIONSDATO'].is_unique
-#        if kollision:
-#            assert False
-#
-
-# generel fejl, nok ikke pga. af OR specifikt error at paybacks and 'OR'
-# claimant type.
-#
-# samtidighedsfejl: [11:10 AM] Emil Joachim Pedersen
-# Og det behøver ikke være alle betalinger, men så længe der er 2 med
-# samme transaktion dato går den i ged
-#
-# la Cour: liste over nymfid-grupper med ISMATHED==NO
+start = timer()
+report_name = f'report_{today}_{sha[:7]}.pkl'
+report_path = os.path.join(path, report_name)
+report = get_report(report_path, ids=nymfids, ncpus=8)
+print('total run time', round(timer() - start, 2))

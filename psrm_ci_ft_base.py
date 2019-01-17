@@ -36,6 +36,15 @@ class PSRM_CI_FT_BASE:
         return pd.read_excel(fname, sheet_name=None)
 
     @property
+    def udligning(self):
+        # same as afregning
+        rename = {'EFIFORDRINGIDENTIFIKATOR': 'NYMFID'}
+        df = self.sheets['Udligning'].copy()
+        validator.check_udligning(df)
+        df.rename(columns=rename, inplace=True)
+        return df
+
+    @property
     def afregning(self):
         df = self.sheets['PSRM Afregning'].copy()  # load and format PSRM Afregning
         df = df[~df['NYMFID'].isnull()]  # remove the few events with no NYMFID
@@ -45,7 +54,6 @@ class PSRM_CI_FT_BASE:
         df.loc[:, 'BANKID'] = df['BANKID'].astype('int64')  # convert ID to correct type
         df['VIRKNINGSDATO'] = df['VIRKNINGSDATO'].str[:10]  # cut meaningless timestamp off
         validator.check_afregningsdata(df)
-        df.loc[:, 'ISMATCHED_BOOL'] = df['ISMATCHED'] != 'NO'  # bool value for PSRM match
         rename = {'CUR_AMT': 'AMOUNT'}
         df.rename(columns=rename, inplace=True)
         return df
