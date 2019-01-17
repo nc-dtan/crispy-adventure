@@ -30,6 +30,11 @@ class PsrmDB:
     def get_bank_accounts(self):
         return self.get_table('BANK_ACCOUNTS')
 
+    @property
+    def get_ftgls(self):
+        query = 'SELECT * FROM CISADM.CI_FT FT JOIN CISADM.CI_FT_GL FTGL ON FT.FT_ID = FTGL.FT_ID'
+        return self.query(query)
+
 
 if __name__ == '__main__':
     query = "SELECT * FROM BANK_ACCOUNTS"
