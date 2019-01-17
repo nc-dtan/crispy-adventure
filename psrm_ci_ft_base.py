@@ -5,7 +5,7 @@ import validator
 from afregning import Afregning
 from underretning import Underretning
 from udtraek import Udtraek
-
+from udligning import Udligning
 
 class PSRM_CI_FT_BASE:
 
@@ -17,7 +17,7 @@ class PSRM_CI_FT_BASE:
               'PSRM Afregning': ['CI_FT_BASE.xlsx', 'Sheet1'],
               'Afregning_Underretning': ['Afregninger.xlsx', 'Sheet1'],
               'Udligning': ['Udligninger.xlsx', 'Sheet1'],
-              'Udtræk NCO': None,
+              'Udtræk NCO': ['Udtraek-NCO.xlsx', 'Sheet1'],
             }
             sheets = {}
             for name in multi_sheets:
@@ -82,13 +82,16 @@ class PSRM_CI_FT_BASE:
         afregn = self.afregning[self.afregning.NYMFID == id]
         underret = self.underretning[self.underretning.NYMFID == id]
         udtraek = self.udtraeksdata[self.udtraeksdata.NYMFID == id]
-        return Afregning(afregn), Underretning(underret), Udtraek(udtraek)
+        udlign = self.udligning[self.udligning.NYMFID == id]
+        return Afregning(afregn), Underretning(underret), Udligning(udlign), Udtraek(udtraek)
 
     def id_check(self, id):
-        af, un, ud = self.get_by_id(id)
+        af, un, ud, udl = self.get_by_id(id)
         print('-'*80)
         print('Afregning\n')
         print(af)
+        print('-'*80)
+        print(udl)
         print('-'*80)
         print('Underretning\n')
         print(un)
@@ -97,6 +100,7 @@ class PSRM_CI_FT_BASE:
         print(ud)
         print('-'*80)
         print('Sum of AFR: %.2f' % af.sum_amount)
+        print('Sum of UDL: %.2f' % udl.sum_amount)
         print('Sum of UND: %.2f' % un.sum_amount)
         print('Sum of UDT: %.2f' % ud.sum_amount)
         print('-'*80)
