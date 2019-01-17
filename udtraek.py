@@ -13,6 +13,13 @@ class Udtraek(Data):
         idx = [is_integer(a) for a in self.df['Parent']]
         return round(sum(self.df.loc[idx, 'AMOUNT']), 2)
 
+    def sum_amount_partial(self, code='DKCSHACT'):
+        return self.sum_amount - self.sum_amount_code(code)
+
+    def sum_amount_code(self, code='DKCSHACT'):
+        idx = self.df['Parent'] == code
+        return round(sum(self.df.loc[idx, 'AMOUNT']), 2)
+
     def duplicate_transDTTM(self):
         idx = self.df.TransDTTM.duplicated()
         return self.df.TransDTTM[idx]
