@@ -30,7 +30,7 @@ else:
 afregning = psrm.afregning
 underretning = psrm.underretning
 udligning = psrm.udligning
-udtraeksdata = psrm.udtraeksdata
+udtraeksdata = psrm.udtraeksdata.sort_values('EFFECTIVE_DATE')
 
 # only checking afregning NYMFIDs
 nymfids = afregning['NYMFID'].unique()
@@ -95,6 +95,19 @@ def check_NYMFID(nymfid, ISMATCHED=False):
         else:
             report['MISSING_PAY_ID'] = True
 
+    # TODO: early first WDEX leads to false payment, but not always!!
+    first = udtraek.iloc[0]  # assumes sorted udtraek
+    if first['PARENT_ID'][-4:] == 'WDEX':
+        #second = udt_effective.iloc[1]
+        #print(psrm.id_check(nymfid))
+        #assert und_afstemt == False
+        report['FIRST_WDEX'] = True
+    else:
+        report['FIRST_WDEX'] = False
+
+    if report['FIRST_WDEX'] != True and report['FIRST_WDEX'] != False:
+        raise NotImplementedError
+
     # ERRORS, sequential (early return)
     if len(afregn) and not len(underret):
         report['ERROR'] = 'MISSING_UNDERRET'
@@ -116,17 +129,6 @@ def check_NYMFID(nymfid, ISMATCHED=False):
 
     if ps != px and ps + px > 2:
         pass
-
-    # TODO: early first WDEX leads to false payment, but not always!!
-    udt_effective = udtraek.sort_values('EFFECTIVE_DATE')
-    first = udt_effective.iloc[0]
-    if first['PARENT_ID'][-4:] == 'WDEX':
-        #second = udt_effective.iloc[1]
-        #print(psrm.id_check(nymfid))
-        #assert und_afstemt == False
-        report['FIRST_WDEX'] = True
-    else:
-        report['FIRST_WDEX'] = False
 
     # DOORSTOPS
     if ps < px:  # cannot be more send backs than payments
@@ -169,5 +171,5 @@ def get_report(report_path, ids=None, ncpus=1):
 start = timer()
 report_name = f'report_{today}_{sha[:7]}.pkl'
 report_path = os.path.join(path, report_name)
-report = get_report(report_path, ids=nymfids, ncpus=10)
+report = get_report(report_path, ids=nymfids, ncpus=8)
 print('total run time', round(timer() - start, 2))
