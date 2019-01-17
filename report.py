@@ -92,6 +92,9 @@ def check_NYMFID(nymfid, ISMATCHED=False):
     if len(afregn) and not len(underret):
         report['ERROR'] = 'MISSING_UNDERRET'
         return report
+    if len(afregn) and not len(udlign):
+        report['ERROR'] = 'MISSING_UDLIGNING'
+        return report
         
     ps = len(afregn[afregn['FT_TYPE_FLG'] == 'PS'])
     px = len(afregn[afregn['FT_TYPE_FLG'] == 'PX'])
