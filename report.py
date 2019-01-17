@@ -32,10 +32,18 @@ def check_NYMFID(nymfid, ISMATCHED=False):
     underret = underretning[underretning['NYMFID'] == nymfid]
     afregn = afregning[afregning['NYMFID'] == nymfid]
     udlign = udligning[udligning['NYMFID'] == nymfid]
+
+    # attempt to match FORDRINGSHAVERID between 3 sheets
     if len(underret['FORDRINGSHAVERID'].unique()) == 1:
         fhid = underret['FORDRINGSHAVERID'].values[0]
-    if len(underret) == 0:
-        fhid = 'NO'
+    elif len(udlign['FORDRINGSHAVERID'].unique()) == 1:
+        fhid = udlign['FORDRINGSHAVERID'].values[0]
+    elif len(udlign['FORDRINGSHAVERID'].unique()) == 0:
+        fhid = 'NO_FHID_FOUND'
+    else:
+        er = f'NYMFID: {nymfid}, {udlign["FORDRINGSHAVERID"].unique()}'
+        raise NotImplementedError(er)
+
     report = {'NYMFID': nymfid, 'ERROR': 'NO', 'FHID': fhid}
 
     # trans time collision
@@ -91,15 +99,15 @@ def check_NYMFID(nymfid, ISMATCHED=False):
     if ps == px:
         if any(underret['DMIFordringTypeKategori'] == 'OR'):
             if len(afregn) != len(underret):
-                assert afstemt == False
+                assert und_afstemt == False
+                #assert udl_afstemt == False
                 report['ERROR'] = 'OR_PS_PX'
                 return report
 
     if ps != px and ps + px > 2:
         pass
 
-    # TODO: ERRORS
-    # early first WDEX leads to false payment, but not always!!
+    # TODO: early first WDEX leads to false payment, but not always!!
 
     # DOORSTOPS
     if ps < px:  # cannot be more send backs than payments
