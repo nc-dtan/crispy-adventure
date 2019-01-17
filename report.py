@@ -6,7 +6,7 @@ import psrm_ci_ft_base
 
 
 print('Under development!')
-path = '../Data/v2/'  # local path
+path = '../Data/v3/'  # local path
 repo = git.Repo(search_parent_directories=True)
 today = datetime.datetime.today().strftime('%d-%m-%Y')
 sha = repo.head.object.hexsha
@@ -28,7 +28,9 @@ nymfids = afregning['NYMFID'].unique()
 def check_NYMFID(nymfid, ISMATCHED=False):
     underret = underretning[underretning['NYMFID'] == nymfid]
     afregn = afregning[afregning['NYMFID'] == nymfid]
-    report = {'NYMFID': nymfid, 'ERROR': 'NO'}
+    fhid = underret['FORDRINGSHAVERID']
+    assert fhid.is_unique
+    report = {'NYMFID': nymfid, 'ERROR': 'NO', 'FHID': fhid.iloc[0]}
 
     # trans time collision
     if len(afregn) > 1:
@@ -83,9 +85,7 @@ def check_NYMFID(nymfid, ISMATCHED=False):
                 return report
 
     if ps != px and ps + px > 2:
-        if all(underret['DMIFordringTypeKategori'] == 'HF'):
-            if not afstemt == False:
-                pass
+        pass
 
     # TODO: ERRORS
     # early first WDEX leads to false payment, but not always!!
@@ -131,5 +131,5 @@ def get_report(report_path, ids=None, ncpus=1):
 start = timer()
 report_name = f'report_{today}_{sha[:7]}.pkl'
 report_path = os.path.join(path, report_name)
-report = get_report(report_path, ids=nymfids, ncpus=8)
+report = get_report(report_path, ids=nymfids[:10], ncpus=8)
 print('total run time', round(timer() - start, 2))
