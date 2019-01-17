@@ -2,6 +2,7 @@
 data/
 *.xlsx
 *.pkl
+profiles.json
 
 
 # Byte-compiled / optimized / DLL files
