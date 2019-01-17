@@ -4,8 +4,13 @@ import pandas, git
 from tqdm import tqdm
 import psrm_ci_ft_base
 
+# check requirements.txt is met
+import pkg_resources
+dependencies = [line.strip() for line in open('requirements.txt', 'r')]
+pkg_resources.require(dependencies)
 
-path = '../Data/v3/'  # local path
+# read data from local path
+path = '../Data/v3/'
 repo = git.Repo(search_parent_directories=True)
 today = datetime.datetime.today().strftime('%d-%m-%Y')
 sha = repo.head.object.hexsha
@@ -25,6 +30,7 @@ else:
 afregning = psrm.afregning
 underretning = psrm.underretning
 udligning = psrm.udligning
+udtraeksdata = psrm.udtraeksdata
 
 # only checking afregning NYMFIDs
 nymfids = afregning['NYMFID'].unique()
@@ -32,6 +38,7 @@ def check_NYMFID(nymfid, ISMATCHED=False):
     underret = underretning[underretning['NYMFID'] == nymfid]
     afregn = afregning[afregning['NYMFID'] == nymfid]
     udlign = udligning[udligning['NYMFID'] == nymfid]
+    udtraek = udtraeksdata[udtraeksdata['NYMFID'] == nymfid]
 
     # attempt to match FORDRINGSHAVERID between 3 sheets
     if len(underret['FORDRINGSHAVERID'].unique()) == 1:
@@ -111,6 +118,15 @@ def check_NYMFID(nymfid, ISMATCHED=False):
         pass
 
     # TODO: early first WDEX leads to false payment, but not always!!
+    udt_effective = udtraek.sort_values('EFFECTIVE_DATE')
+    first = udt_effective.iloc[0]
+    if first['PARENT_ID'][-4:] == 'WDEX':
+        #second = udt_effective.iloc[1]
+        #print(psrm.id_check(nymfid))
+        #assert und_afstemt == False
+        report['FIRST_WDEX'] = True
+    else:
+        report['FIRST_WDEX'] = False
 
     # DOORSTOPS
     if ps < px:  # cannot be more send backs than payments
@@ -142,7 +158,7 @@ def get_report(report_path, ids=None, ncpus=1):
             with multiprocessing.Pool(processes=ncpus) as p:
                 report = list(tqdm(p.imap(check_NYMFID, ids), total=len(ids)))
         else:
-            report = [check_NYMFID(x) for x in tqdm.tqdm(ids)]
+            report = [check_NYMFID(x) for x in tqdm(ids)]
         report = pandas.DataFrame(report)
         report.to_pickle(report_path)
         df_to_excel(report, report_path=report_path)
@@ -153,5 +169,5 @@ def get_report(report_path, ids=None, ncpus=1):
 start = timer()
 report_name = f'report_{today}_{sha[:7]}.pkl'
 report_path = os.path.join(path, report_name)
-report = get_report(report_path, ids=nymfids, ncpus=12)
+report = get_report(report_path, ids=nymfids, ncpus=10)
 print('total run time', round(timer() - start, 2))
