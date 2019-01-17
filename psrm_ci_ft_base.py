@@ -121,4 +121,4 @@ if __name__ == '__main__':
     def get_random_nymfid(df):
         return df.sample(1).NYMFID.values[0]
 
-    af, un, ud = psrm.get_by_id(get_random_nymfid(psrm.afregning))
+    af, un, udl, ud = psrm.get_by_id(get_random_nymfid(psrm.afregning))
