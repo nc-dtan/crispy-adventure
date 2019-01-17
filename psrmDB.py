@@ -30,14 +30,29 @@ class PsrmDB:
     def get_bank_accounts(self):
         return self.get_table('BANK_ACCOUNTS')
 
+    @property
+    def get_ftgls(self):
+        query = """SELECT *
+                    FROM CISADM.CI_FT FT
+                    JOIN CISADM.CI_FT_GL FTGL ON FT.FT_ID = FTGL.FT_ID"""
+        return self.query(query)
+
+    def get_payType(self, perId):
+        query = f"""SELECT CI_PER_ID.PER_ID_NBR,
+                        EXTRACTVALUE(xmltype('<?xml version="1.0" standalone="no" ?><schema>' || CI_PER.C1_PER_DATA_AREA || '</schema>'), '/schema/payType')
+                    FROM CISADM.CI_PER_ID
+                    JOIN CISADM.CI_PER ON CI_PER_ID.PER_ID = CI_PER.PER_ID
+                    WHERE CI_PER_ID.PER_ID_NBR = {perId}"""
+        df = self.query(query)
+        df.columns = ('PER_ID_NBR', 'PAY_TYPE')
+        return df
+
 
 if __name__ == '__main__':
-    query = "SELECT * FROM BANK_ACCOUNTS"
-    for env in profiles.keys():
-        print(f'Trying to connect to {env}...')
-        psrmDb = PsrmDB(env=env)
-        try:
-            psrmDb.connect()
-            print(psrmDb.query(query))
-        except cx_Oracle.DatabaseError:
-            print(f'Could not connect to {env}.')
+    psrmDb = PsrmDB('DEVC')
+    psrmDb.connect()
+    def get_random_perId():
+        ci_per_id = psrmDb.get_table('CI_PER_ID')
+        return ci_per_id.PER_ID_NBR.sample(1).values[0]
+
+    print(psrmDb.get_payType(get_random_perId()))
