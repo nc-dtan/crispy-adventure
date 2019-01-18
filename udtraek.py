@@ -67,3 +67,25 @@ class Udtraek(Data):
                     res.append(nymfid)
                     break
         return res
+
+    def ident_CATU(self):
+        res = []
+        cols = ['NYMFID', 'TRANSACTION_DATE', 'PARENT_ID', 'AMOUNT']
+        temp = self.df.loc[:, cols]
+        nymfids = temp['NYMFID'].unique()
+        for nymfid in tqdm(nymfids):
+            d = temp.loc[temp['NYMFID'] == nymfid, :]
+            d = d.loc[d['PARENT_ID'] == 'DKCSHACT', :]
+            if len(d) <= 3:
+                continue
+            timestamps = d['TRANSACTION_DATE'].unique()
+            for timestamp in timestamps:
+                amounts = d.loc[d['TRANSACTION_DATE'] == timestamp, 'AMOUNT']
+                if len(amounts) == 3:
+                    AMT = abs(amounts).unique()
+                    if len(AMT) == 1:
+                        res.append(nymfid)
+                        break
+        
+        return res
+
