@@ -48,6 +48,68 @@ class PsrmDB:
         df.columns = ('PER_ID_NBR', 'PAY_TYPE')
         return df
 
+    def _get_ACL(self, accounts, dkcshact):
+        accounts = f"({', '.join(map(str, accounts))})"
+        if dkcshact:
+            dkcshact = "PARENT_ID='DKCSHACT'"
+        else:
+            dkcshact = "PARENT_ID<>'DKCSHACT'"
+
+        query = f"""SELECT TRANSACTION_DATE,
+                        EFFECTIVE_DATE,
+                        ACCOUNTING_DATE,
+                        CLAIMANT_ID,
+                        GL_ACCT,
+                        EXTERNAL_OBLIGATION_ID,
+                        SA_ID,
+                        ADJ_ID,
+                        PAY_EVENT_ID,
+                        PAY_ID,
+                        PARENT_ID,
+                        SIBLING_ID,
+                        FT_TYPE_FLG,
+                        FT_ID,
+                        AMOUNT
+                    FROM CISADM.DK_ACL_DATA
+                        WHERE (GL_ACCT IN {accounts} AND {dkcshact})"""
+        return self._query(query)
+
+    @property
+    def get_ACL1(self):
+        '''Extract data from the ACL.
+        Parameters:
+          GL_ACCT = 3974
+          PARENT_ID = DKCSHACT
+        '''
+        return self._get_ACL(('3974'), True)
+
+    @property
+    def get_ACL2(self):
+        '''Extract data from the ACL.
+        Parameters:
+          GL_ACCT IN (9110, 3970)
+          PARENT_ID <> DKCSHACT
+        '''
+        return self._get_ACL(('9110', '3970'), False)
+
+    @property
+    def get_ACL3(self):
+        '''Extract data from the ACL.
+        Parameters:
+          GL_ACCT = 3977
+          PARENT_ID <> DKCSHACT
+        '''
+        return self._get_ACL(('3977'), False)
+
+    @property
+    def get_ACL4(self):
+        '''Extract data from the ACL.
+        Parameters:
+          GL_ACCT = 3982
+          PARENT_ID <> DKCSHACT
+        '''
+        return self._get_ACL(('3982'), False)
+
 
 if __name__ == '__main__':
     psrmDb = PsrmDB('VAL04')
