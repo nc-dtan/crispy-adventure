@@ -80,8 +80,9 @@ class Udtraek(Data):
                 continue
             timestamps = d['TRANSACTION_DATE'].unique()
             for timestamp in timestamps:
-                if len(d.loc[d['TRANSACTION_DATE'] == timestamp, :]) == 3:
-                    AMT = abs(d.loc[d['TRANSACTION_DATE'] == timestamp, 'AMOUNT']).unique()
+                amounts = d.loc[d['TRANSACTION_DATE'] == timestamp, 'AMOUNT']
+                if len(amounts) == 3:
+                    AMT = abs(amounts).unique()
                     if len(AMT) == 1:
                         res.append(nymfid)
                         break
