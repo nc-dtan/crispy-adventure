@@ -72,7 +72,14 @@ class PsrmDB:
                         AMOUNT
                     FROM CISADM.DK_ACL_DATA
                         WHERE (GL_ACCT IN {accounts} AND {dkcshact})"""
-        return self._query(query)
+        df = self._query(query)
+        df['GL_ACCT'] = df['GL_ACCT'].astype('int')
+        df['CLAIMANT_ID'] = df['CLAIMANT_ID'].astype('int')
+        df['SA_ID'] = df['SA_ID'].astype('int')
+        df['SIBLING_ID'] = df['SIBLING_ID'].astype('int')
+        df['FT_ID'] = df['FT_ID'].astype('int')
+        df['AMOUNT'] = df['AMOUNT'].astype('float')
+        return df
 
     @property
     def get_ACL1(self):
