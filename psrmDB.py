@@ -15,6 +15,7 @@ class PsrmDB:
         self.username = profiles[env]['username']
         self.password = profiles[env]['password']
 
+    @property
     def connect(self):
         dsn_tns = cx_Oracle.makedsn(self.ip, self.port, self.sid)
         self.connection = cx_Oracle.connect(self.username, self.password, dsn_tns)
@@ -49,8 +50,9 @@ class PsrmDB:
 
 
 if __name__ == '__main__':
-    psrmDb = PsrmDB('DEVC')
-    psrmDb.connect()
+    psrmDb = PsrmDB('VAL04')
+    psrmDb.connect
+
     def get_random_perId():
         ci_per_id = psrmDb.get_table('CI_PER_ID')
         return ci_per_id.PER_ID_NBR.sample(1).values[0]
