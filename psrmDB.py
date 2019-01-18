@@ -20,12 +20,12 @@ class PsrmDB:
         dsn_tns = cx_Oracle.makedsn(self.ip, self.port, self.sid)
         self.connection = cx_Oracle.connect(self.username, self.password, dsn_tns)
 
-    def query(self, query):
+    def _query(self, query):
         return pd.read_sql(query, con=self.connection)
 
     def get_table(self, table):
         query = f'SELECT * FROM {table}'
-        return self.query(query)
+        return self._query(query)
 
     @property
     def get_bank_accounts(self):
@@ -36,7 +36,7 @@ class PsrmDB:
         query = """SELECT *
                     FROM CISADM.CI_FT FT
                     JOIN CISADM.CI_FT_GL FTGL ON FT.FT_ID = FTGL.FT_ID"""
-        return self.query(query)
+        return self._query(query)
 
     def get_payType(self, perId):
         query = f"""SELECT CI_PER_ID.PER_ID_NBR,
@@ -44,7 +44,7 @@ class PsrmDB:
                     FROM CISADM.CI_PER_ID
                     JOIN CISADM.CI_PER ON CI_PER_ID.PER_ID = CI_PER.PER_ID
                     WHERE CI_PER_ID.PER_ID_NBR = {perId}"""
-        df = self.query(query)
+        df = self._query(query)
         df.columns = ('PER_ID_NBR', 'PAY_TYPE')
         return df
 
