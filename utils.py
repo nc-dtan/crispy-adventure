@@ -42,8 +42,11 @@ def check_requirements():
     dependencies = [line.strip() for line in open('requirements.txt', 'r')]
     pkg_resources.require(dependencies)
 
-#def repo = git.Repo(search_parent_directories=True)
-#today = datetime.datetime.today().strftime('%d-%m-%Y')
-#sha = repo.head.object.hexsha
-#print(today, sha[:7])
+def get_short_hash():
+    """Get the 7 first characters of the current git hash."""
+    repo = git.Repo(search_parent_directories=True)
+    return repo.head.object.hexsha
 
+def get_date():
+    """Get string version of todays date."""
+    return datetime.datetime.today().strftime('%d-%m-%Y')
