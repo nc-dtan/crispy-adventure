@@ -6,7 +6,7 @@ def cache_psrm(cache ='psrm.pkl', psrm_kwargs=None, force=False):
     """Load and create cached psrm class instance.
        psrm_kwargs is PSRM_CI_FT_BASE's arguments."""
 
-    if not os.path.exists(cache) or force == True:
+    if not os.path.exists(cache) or force:
         psrm = PSRM_CI_FT_BASE(**psrm_kwargs)
         with open(cache, 'wb') as f:
             pickle.dump(psrm, f)
