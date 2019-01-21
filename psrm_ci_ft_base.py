@@ -32,7 +32,6 @@ class PSRM_CI_FT_BASE:
             sheets = {}
             for name in multi_sheets:
                 data = multi_sheets[name][0]
-                print(data)
                 sh_name = multi_sheets[name][1]
                 if data is None:
                     continue
