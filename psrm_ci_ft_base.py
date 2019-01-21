@@ -9,58 +9,33 @@ from udligning import Udligning
 
 class PSRM_CI_FT_BASE:
 
-    def __init__(self, path, fname='PSRM_CI_FT_BASE.xlsx', multi_sheets=None):
+    def __init__(self, path=None, input=None):
         self.path = path
-        if multi_sheets is not None:
-
-            # preset data for the second data pull-out
-#            multi_sheets = {
-#              'PSRM Afregning': ['CI_FT_BASE.xlsx', 'Sheet1'],
-#              'Afregning_Underretning': ['Afregninger.xlsx', 'Sheet1'],
-#              'Udligning': ['Udligninger.xlsx', 'Sheet1'],
-#              'Udtræk': ['Udtræk.xlsx', 'Sheet1'],
-#            }
-
-            # preset data for the 4th big ACL data from Daniel
-            multi_sheets = {
-              'PSRM Afregning': ['CI_FT_BASE.xlsx', 'Sheet1'],
-              'Afregning_Underretning': ['Afregninger.xlsx', 'Sheet1'],
-              'Udligning': ['Udligninger.xlsx', 'Sheet1'],
-              'Udtræk': [['3977.txt', 'Test.txt', '3982.txt'], None],
-            }
-
-            sheets = {}
-            for name in multi_sheets:
-                data = multi_sheets[name][0]
-                sh_name = multi_sheets[name][1]
-                if data is None:
-                    continue
-                if type(data) == str:
-                    if data.split('.')[-1] != 'xlsx':
-                        raise NotImplementedError('not a Excel file')
-                    sheet_path = os.path.join(self.path, data)
-                    sheets[name] = pd.read_excel(sheet_path, sh_name)
-                if type(data) != str:
-                    if sh_name is not None:
-                        raise NotImplementedError('multi sheets not working')
-                    dfs = []
-                    for x in data:
-                        fpath = os.path.join(self.path, x)
-                        print(fpath)
-                        if x.split('.')[-1] == 'txt':
-                            dfs.append(pd.read_csv(fpath, sep=';'))
-                        if x.split('.')[-1] == 'csv':
-                            dfs.append(pd.read_csv(fpath, sep=','))
-                    sheets[name] = pd.concat(dfs)
+        sheets = {}
+        for name in input:
+            data = input[name][0]
+            sname = input[name][1]
+            if data is None:
+                continue
+            if type(data) == str:
+                if data.split('.')[-1] != 'xlsx':
+                    raise NotImplementedError('not a Excel file')
+                sheet_path = os.path.join(self.path, data)
+                sheets[name] = pd.read_excel(sheet_path, sname)
+            if type(data) != str:
+                if sname is not None:
+                    raise NotImplementedError('multi sheets not working')
+                dfs = []
+                for x in data:
+                    fpath = os.path.join(self.path, x)
+                    if x.split('.')[-1] == 'txt':
+                        dfs.append(pd.read_csv(fpath, sep=';'))
+                    if x.split('.')[-1] == 'csv':
+                        dfs.append(pd.read_csv(fpath, sep=','))
+                sheets[name] = pd.concat(dfs)
 
             self.sheets = sheets
 
-        elif fname is not None:
-            self.fname = fname
-            self.sheets = self._read_sheets(os.path.join(self.path, self.fname))
-
-    def _read_sheets(self, fname):
-        return pd.read_excel(fname, sheet_name=None)
 
     @property
     def udligning(self):
