@@ -113,16 +113,10 @@ class PSRM_CI_FT_BASE:
 
 if __name__ == '__main__':
     from default_paths import path_v4, v4
-    if os.path.exists('psrm.pkl'):
-        with open('psrm.pkl', 'rb') as f:
-            psrm = pickle.load(f)
-    else:
-        psrm = PSRM_CI_FT_BASE(path=path_v4, input=v4)
-        with open('psrm.pkl', 'wb') as f:
-            pickle.dump(psrm, f)
+    from psrm_utils import cache_psrm
 
     def get_random_nymfid(df):
         return df.sample(1).NYMFID.values[0]
 
+    psrm = cache_psrm(psrm_kwargs={'path': path_v4, 'input': v4})
     af, un, udl, ud = psrm.get_by_id(get_random_nymfid(psrm.afregning))
-
