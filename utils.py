@@ -37,12 +37,13 @@ def df_to_excel(df=None, path=None, sheet_name=None):
     worksheet.set_column(0, df.shape[1], 18)
     writer.save()
 
+def check_requirements():
+    """Check that requirements.txt is fulfilled.""
+    dependencies = [line.strip() for line in open('requirements.txt', 'r')]
+    pkg_resources.require(dependencies)
+
 #def repo = git.Repo(search_parent_directories=True)
 #today = datetime.datetime.today().strftime('%d-%m-%Y')
 #sha = repo.head.object.hexsha
 #print(today, sha[:7])
 
-def check_requirements():
-    """Check that requirements.txt is fulfilled.""
-    dependencies = [line.strip() for line in open('requirements.txt', 'r')]
-    pkg_resources.require(dependencies)
