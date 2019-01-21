@@ -12,12 +12,16 @@ class Udtraek(Data):
         self.df['TRANSACTION_DATE'] = pd.to_datetime(self.df['TRANSACTION_DATE'])
 
 
-    def sum_amount(self, df):
-        idx = [is_integer(a) for a in df['PARENT_ID']]
+    def sum_amount(self, df=None):
+        if df is None:
+            temp = self.df
+        else:
+            temp = df
+        idx = [is_integer(a) for a in temp['PARENT_ID']]
         if idx[0] == False and len(idx) == 1:
             return 0
         else:
-            return round(sum(df.loc[idx,'AMOUNT']),2)
+            return round(sum(temp.loc[idx,'AMOUNT']),2)
 
     def sum_amount_partial(self,df, code='DKCSHACT'):
         return self.sum_amount(df) - self.sum_amount_code(df, code)
