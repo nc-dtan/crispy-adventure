@@ -4,22 +4,6 @@ from datetime import datetime, timedelta
 from tqdm import tqdm
 import pandas as pd
 
-def _sum_amount(df):
-    idx = [is_integer(a) for a in df['PARENT_ID']]
-    if idx[0] == False and len(idx) == 1:
-        return 0
-    else:
-        return round(sum(df.loc[idx,'AMOUNT']),2)
-    
-def _sum_amount_partial(df, code='DKCSHACT'):
-    return _sum_amount(df) - _sum_amount_code(df, code)
-
-def _sum_amount_code(df, code='DKCSHACT'):
-    idx = df['PARENT_ID'] == code
-    if idx.values[0] == False and len(idx) == 1:
-        return 0
-    else:
-        return round(sum(df.loc[idx, 'AMOUNT']),2)
 
 class Udtraek(Data):
     def __init__(self, df):
@@ -28,15 +12,22 @@ class Udtraek(Data):
         self.df['TRANSACTION_DATE'] = pd.to_datetime(self.df['TRANSACTION_DATE'])
 
 
-    @property
-    def sum_amount(self):
-        return _sum_amount(self.df)
+    def sum_amount(self, df):
+        idx = [is_integer(a) for a in df['PARENT_ID']]
+        if idx[0] == False and len(idx) == 1:
+            return 0
+        else:
+            return round(sum(df.loc[idx,'AMOUNT']),2)
 
-    def sum_amount_partial(self, code='DKCSHACT'):
-        return _sum_amount_partial(self.df, code)
+    def sum_amount_partial(self,df, code='DKCSHACT'):
+        return self.sum_amount(df) - self.sum_amount_code(df, code)
 
-    def sum_amount_code(self, code='DKCSHACT'):
-        return _sum_amount_code(self.df, code)
+    def sum_amount_code(self,df, code='DKCSHACT'):
+        idx = df['PARENT_ID'] == code
+        if idx.values[0] == False and len(idx) == 1:
+            return 0
+        else:
+            return round(sum(df.loc[idx, 'AMOUNT']),2)
 
     def duplicate_transDTTM(self):
         idx = self.df.TransDTTM.duplicated()
@@ -108,18 +99,15 @@ class Udtraek(Data):
 
     def settlement(self, start_date = '2000-01-01', end_date = '2019-01-01'):
         cols = ['NYMFID', 'TRANSACTION_DATE', 'PARENT_ID', 'AMOUNT']
-        #temp = self.df.loc[:, cols]
-        mask = (self.df['TRANSACTION_DATE'] >= start_date) & (self.df['TRANSACTION_DATE'] <= end_date)
-        temp = self.df[mask]
+        temp = self.select_between_dates(start_date, end_date).df
         temp = temp.loc[:, cols]
         nymfids = temp['NYMFID'].unique()
         results = []
         for nymfid in tqdm(nymfids):
             d = temp.loc[temp['NYMFID'] == nymfid, :]
-            #print(d)
             mfr = {'NYMFID' : nymfid, 
-                    'total_HF' : _sum_amount_partial(d),
-                    'total_IR' : _sum_amount_code(d)
+                    'total_HF' : self.sum_amount_partial(d),
+                    'total_IR' : self.sum_amount_code(d)
                     }
             results.append(mfr)
         return pd.DataFrame(results)
