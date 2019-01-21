@@ -98,7 +98,7 @@ class PSRM_CI_FT_BASE:
     def udtraeksdata(self):
         rename = {'EXTERNAL_OBLIGATION_ID' : 'NYMFID'}
         df = self.sheets['Udtræk'].copy()  # load and format PSRM Afregning
-        df = df[~df['EXTERNAL_OBLIGATION_ID'].isnull()]  # remove events with no NYMFID
+        df = df[~df['EXTERNAL_OBLIGATION_ID'].isnull()]  # remove with no NYMFID
         df['EXTERNAL_OBLIGATION_ID'] = df['EXTERNAL_OBLIGATION_ID'].astype('int64')  # make ID INT
         df.rename(columns=rename, inplace=True)
         df['EFFECTIVE_DATE'] = pd.to_datetime(df['EFFECTIVE_DATE'])
