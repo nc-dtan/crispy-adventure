@@ -6,10 +6,12 @@ from afregning import Afregning
 from underretning import Underretning
 from udtraek import Udtraek
 from udligning import Udligning
+import utils
 
 class PSRM_CI_FT_BASE:
 
     def __init__(self, path=None, input=None):
+        utils.check_requirements()
         self.path = path
         sheets = {}
         for name in input:
@@ -115,8 +117,13 @@ if __name__ == '__main__':
     from default_paths import path_v4, v4
     from psrm_utils import cache_psrm
 
+    # load psrm data with cache
+    psrm = cache_psrm(path=path_v4, input=v4)
+
+    # make a nicely formatted excel sheet
+    utils.df_to_excel(psrm.afregning.sample(50))
+
+    # get a single random id
     def get_random_nymfid(df):
         return df.sample(1).NYMFID.values[0]
-
-    psrm = cache_psrm(psrm_kwargs={'path': path_v4, 'input': v4})
     af, un, udl, ud = psrm.get_by_id(get_random_nymfid(psrm.afregning))
