@@ -89,7 +89,7 @@ class PSRM_CI_FT_BASE:
         udlign = self.udligning[self.udligning.NYMFID == id]
         return Afregning(afregn), Underretning(underret), Udligning(udlign), Udtraek(udtraek)
 
-    def id_check(self, id):
+    def check_id(self, id):
         af, un, udl, ud = self.get_by_id(id)
         print('-'*80)
         print('Afregning\n')
