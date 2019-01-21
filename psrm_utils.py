@@ -7,7 +7,7 @@ def cache_psrm(cache='psrm.pkl', force=False, *args, **kwargs):
        psrm_kwargs is PSRM_CI_FT_BASE's arguments."""
 
     if not os.path.exists(cache) or force:
-        psrm = PSRM_CI_FT_BASE(**psrm_kwargs)
+        psrm = PSRM_CI_FT_BASE(*args, **kwargs)
         with open(cache, 'wb') as f:
             pickle.dump(psrm, f)
     else:
@@ -17,4 +17,4 @@ def cache_psrm(cache='psrm.pkl', force=False, *args, **kwargs):
 
 if __name__ == '__main__':
     from default_paths import path_v4, v4
-    psrm = cache_psrm(psrm_kwargs={'path': path_v4, 'input': v4})
+    psrm = cache_psrm(path=path_v4, input=v4)
