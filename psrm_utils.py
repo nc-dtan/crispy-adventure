@@ -2,7 +2,7 @@ import os
 import pickle
 from psrm_ci_ft_base import PSRM_CI_FT_BASE
 
-def cache_psrm(cache ='psrm.pkl', psrm_kwargs=None, force=False):
+def cache_psrm(cache='psrm.pkl', force=False, *args, **kwargs):
     """Load and create cached psrm class instance.
        psrm_kwargs is PSRM_CI_FT_BASE's arguments."""
 
