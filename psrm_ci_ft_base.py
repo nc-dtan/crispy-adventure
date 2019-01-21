@@ -107,7 +107,7 @@ class PSRM_CI_FT_BASE:
         print('Sum of AFR: %.2f' % af.sum_amount)
         print('Sum of UDL: %.2f' % udl.sum_amount)
         print('Sum of UND: %.2f' % un.sum_amount)
-        print('Sum of UDT: %.2f' % ud.sum_amount)
+        print('Sum of UDT: %.2f' % ud.sum_amount(ud.df))
         print('-'*80)
 
 
