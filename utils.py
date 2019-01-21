@@ -22,9 +22,7 @@ def df_to_excel(df=None, path=None, sheet_name=None):
         path = 'report.xlsx'
     if sheet_name is None:
         sheet_name = os.path.splitext(os.path.basename(path))[0]
-        print(sheet_name)
-    sheet_path = report_path + '.xlsx'
-    writer = pd.ExcelWriter(sheet_path, engine='xlsxwriter')
+    writer = pd.ExcelWriter(path, engine='xlsxwriter')
     df.to_excel(writer, sheet_name='report')
     worksheet = writer.sheets['report']
     columns = [{'header': x} for x in df.columns.tolist()]

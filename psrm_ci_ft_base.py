@@ -117,8 +117,13 @@ if __name__ == '__main__':
     from default_paths import path_v4, v4
     from psrm_utils import cache_psrm
 
+    # load psrm data with cache
+    psrm = cache_psrm(path=path_v4, input=v4)
+
+    # make a nicely formatted excel sheet
+    utils.df_to_excel(psrm.afregning.head(50))
+
+    # get a single random id
     def get_random_nymfid(df):
         return df.sample(1).NYMFID.values[0]
-
-    psrm = cache_psrm(path=path_v4, input=v4)
     af, un, udl, ud = psrm.get_by_id(get_random_nymfid(psrm.afregning))
