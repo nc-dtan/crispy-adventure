@@ -9,31 +9,33 @@ from udligning import Udligning
 
 class PSRM_CI_FT_BASE:
 
-    def __init__(self, path, fname='PSRM_CI_FT_BASE.xlsx', multi_sheets=None):
+    def __init__(self, path=None, input=None):
         self.path = path
-        if multi_sheets is not None:
-            # preset data for the second data pull-out
-            multi_sheets = {
-              'PSRM Afregning': ['CI_FT_BASE.xlsx', 'Sheet1'],
-              'Afregning_Underretning': ['Afregninger.xlsx', 'Sheet1'],
-              'Udligning': ['Udligninger.xlsx', 'Sheet1'],
-              'Udtræk': ['Udtræk.xlsx', 'Sheet1'],
-            }
-            sheets = {}
-            for name in multi_sheets:
-                if multi_sheets[name] is None:
-                    continue
-                sheet_path = os.path.join(self.path, multi_sheets[name][0])
-                sheets[name] = pd.read_excel(sheet_path, multi_sheets[name][1])
+        sheets = {}
+        for name in input:
+            data = input[name][0]
+            sname = input[name][1]
+            if data is None:
+                continue
+            if type(data) == str:
+                if data.split('.')[-1] != 'xlsx':
+                    raise NotImplementedError('not a Excel file')
+                sheet_path = os.path.join(self.path, data)
+                sheets[name] = pd.read_excel(sheet_path, sname)
+            if type(data) != str:
+                if sname is not None:
+                    raise NotImplementedError('multi sheets not working')
+                dfs = []
+                for x in data:
+                    fpath = os.path.join(self.path, x)
+                    if x.split('.')[-1] == 'txt':
+                        dfs.append(pd.read_csv(fpath, sep=';'))
+                    if x.split('.')[-1] == 'csv':
+                        dfs.append(pd.read_csv(fpath, sep=','))
+                sheets[name] = pd.concat(dfs)
 
             self.sheets = sheets
 
-        elif fname is not None:
-            self.fname = fname
-            self.sheets = self._read_sheets(os.path.join(self.path, self.fname))
-
-    def _read_sheets(self, fname):
-        return pd.read_excel(fname, sheet_name=None)
 
     @property
     def udligning(self):
@@ -70,7 +72,7 @@ class PSRM_CI_FT_BASE:
     def udtraeksdata(self):
         rename = {'EXTERNAL_OBLIGATION_ID' : 'NYMFID'}
         df = self.sheets['Udtræk'].copy()  # load and format PSRM Afregning
-        df = df[~df['EXTERNAL_OBLIGATION_ID'].isnull()]  # remove events with no NYMFID
+        df = df[~df['EXTERNAL_OBLIGATION_ID'].isnull()]  # remove with no NYMFID
         df['EXTERNAL_OBLIGATION_ID'] = df['EXTERNAL_OBLIGATION_ID'].astype('int64')  # make ID INT
         df.rename(columns=rename, inplace=True)
         df['EFFECTIVE_DATE'] = pd.to_datetime(df['EFFECTIVE_DATE'])
@@ -87,7 +89,7 @@ class PSRM_CI_FT_BASE:
         udlign = self.udligning[self.udligning.NYMFID == id]
         return Afregning(afregn), Underretning(underret), Udligning(udlign), Udtraek(udtraek)
 
-    def id_check(self, id):
+    def check_id(self, id):
         af, un, udl, ud = self.get_by_id(id)
         print('-'*80)
         print('Afregning\n')
@@ -105,20 +107,16 @@ class PSRM_CI_FT_BASE:
         print('Sum of AFR: %.2f' % af.sum_amount)
         print('Sum of UDL: %.2f' % udl.sum_amount)
         print('Sum of UND: %.2f' % un.sum_amount)
-        print('Sum of UDT: %.2f' % ud.sum_amount)
+        print('Sum of UDT: %.2f' % ud.sum_amount(ud.df))
         print('-'*80)
 
 
 if __name__ == '__main__':
-    if os.path.exists('psrm.pkl'):
-        with open('psrm.pkl', 'rb') as f:
-            psrm = pickle.load(f)
-    else:
-        psrm = PSRM_CI_FT_BASE('../data')
-        with open('psrm.pkl', 'wb') as f:
-            pickle.dump(psrm, f)
+    from default_paths import path_v4, v4
+    from psrm_utils import cache_psrm
 
     def get_random_nymfid(df):
         return df.sample(1).NYMFID.values[0]
 
+    psrm = cache_psrm(psrm_kwargs={'path': path_v4, 'input': v4})
     af, un, udl, ud = psrm.get_by_id(get_random_nymfid(psrm.afregning))
