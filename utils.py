@@ -17,11 +17,12 @@ def convert_date_from_str(date):
     return parser.parse(date)
 
 def df_to_excel(df=None, path=None, sheet_name=None):
+    """Create a nicely formated Excel file."""
     if path is None:
         path = 'report.xlsx'
     if sheet_name is None:
-        sheet_name =
-     """Create a nicely formated Excel file."""
+        sheet_name = os.path.splitext(os.path.basename(path))[0]
+        print(sheet_name)
     sheet_path = report_path + '.xlsx'
     writer = pd.ExcelWriter(sheet_path, engine='xlsxwriter')
     df.to_excel(writer, sheet_name='report')
@@ -38,7 +39,7 @@ def df_to_excel(df=None, path=None, sheet_name=None):
     writer.save()
 
 def check_requirements():
-    """Check that requirements.txt is fulfilled.""
+    """Check that requirements.txt is fulfilled."""
     dependencies = [line.strip() for line in open('requirements.txt', 'r')]
     pkg_resources.require(dependencies)
 
