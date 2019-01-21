@@ -84,6 +84,7 @@ v4 = {
   'Afregning_Underretning': ['Afregninger.xlsx', 'Sheet1'],
   'Udligning': ['Udligninger.xlsx', 'Sheet1'],
   'Udtræk': [['3977.txt', 'Test.txt', '3982.txt'], None],
+}
 
 
 if __name__ == '__main__':
