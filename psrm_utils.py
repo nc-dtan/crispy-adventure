@@ -25,7 +25,7 @@ def load_dw_rpt(path):
         lines = f.readlines()
     # custom header for now
     header = ['FordringID', 'FordringSaldo', 'InddrivelsesrenterAkk']
-    # delete weird rows
+    # delete header and footer
     del lines[:2]
     del lines[-3:]
     arr = numpy.loadtxt(lines)
