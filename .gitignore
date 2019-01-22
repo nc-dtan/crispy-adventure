@@ -1,7 +1,12 @@
 # Own ignores
 data/
+Data/
 *.xlsx
 *.pkl
+*.csv
+*.rpt
+*.txt
+!README.txt
 profiles.json
 
 
