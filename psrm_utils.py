@@ -19,20 +19,16 @@ def cache_psrm(cache='psrm.pkl', force=False, *args, **kwargs):
     return psrm
 
 
-def load_dw_rpt(path):
+def load_dw_rpt(path, cache='fordringsaldo.pkl'):
     """Load weird rpt from DW export."""
-    with open(path, 'r') as f:
-        lines = f.readlines()
-    # custom header for now
-    header = ['FordringID', 'FordringSaldo', 'InddrivelsesrenterAkk']
-    # delete weird rows
-    del lines[:2]
-    del lines[-3:]
-    arr = numpy.loadtxt(lines)
-    df = pd.DataFrame(arr, columns=header)
-    df['FordringID'] = df['FordringID'].astype('int64')
-    rename = {'FordringID': 'NYMFID'}
-    df.rename(columns=rename, inplace=True)
+    if not os.path.exists(cache):
+        arr = numpy.genfromtxt(path, skip_header=2, skip_footer=1)
+        header = ['NYMFID', 'FH_Saldo', 'IR_Saldo']  # custom header
+        df = pd.DataFrame(arr, columns=header)
+        df['NYMFID'] = df['NYMFID'].astype('int64')
+        df.to_pickle(cache)
+    else:
+        df = pd.read_pickle(cache)
     return df
 
 
