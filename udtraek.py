@@ -3,6 +3,7 @@ from utils import is_integer, convert_date_from_str
 from datetime import datetime, timedelta
 from tqdm import tqdm
 import pandas as pd
+from utils import to_amount
 
 
 class Udtraek(Data):
@@ -10,7 +11,7 @@ class Udtraek(Data):
         self.df = df[['TRANSACTION_DATE', 'EFFECTIVE_DATE', 'NYMFID', 'PARENT_ID', 'SIBLING_ID', 'AMOUNT', 'FT_TYPE_FLG']].copy()
         self.df.sort_values('TRANSACTION_DATE', inplace=True)
         self.df['TRANSACTION_DATE'] = pd.to_datetime(self.df['TRANSACTION_DATE'])
-
+        self.df['AMOUNT'] = to_amount(self.df['AMOUNT'])
 
     def sum_amount(self, df=None):
         if df is None:
