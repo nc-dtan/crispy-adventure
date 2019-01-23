@@ -4,7 +4,8 @@ from datetime import datetime, timedelta
 from tqdm import tqdm
 import pandas as pd
 from utils import to_amount
-
+from pathos.multiprocessing import ProcessingPool
+from pathos.multiprocessing import cpu_count
 
 class Udtraek(Data):
     def __init__(self, df):
@@ -117,17 +118,39 @@ class Udtraek(Data):
             results.append(mfr)
         return pd.DataFrame(results)
 
-    def multi_wdex(self):
-        res = []
-        cols = ['NYMFID', 'TRANSACTION_DATE', 'PARENT_ID', 'AMOUNT']
+    def multi_wdex(self, ncpus=None):
+        if ncpus is None:
+            ncpus = cpu_count() -1
+        cols = ['NYMFID', 'TRANSACTION_DATE', 'PARENT_ID', 'AMOUNT', 'FT_TYPE_FLG']
         temp = self.df.loc[:, cols]
-        nymfids = tmep['NYMFID'].unique()
+        nymfids = temp['NYMFID'].unique()
         temp['AMOUNT'] = to_amount(temp['AMOUNT'])
-        for nymfid in tqdm(nymfids):
-            d = temp.loc[temp['NYMFID'] == nymfid, :]
-            d = d.loc[['PARENT_ID'].str[-4:] == 'WDEX']
-            if len(d) >= 2:
-                for g in d.groupby(d.TRANSACTION_DATE.dt.date):
-                    if len(g) >= 2:
-                        if not g['AMOUNT'].is_unique:
-                            res.append(nymfid)
+        pool = ProcessingPool(ncpus=ncpus)
+        result = pool.map(lambda x: _multi_wdex_worker(temp, x), nymfids)
+        return list(filter(None,result))
+       # for nymfid in tqdm(nymfids):
+       #     d = temp.loc[temp['NYMFID'] == nymfid, :]
+       #     d = d.loc[d['PARENT_ID'].str[-4:] == 'WDEX']
+       #     if len(d) >= 2:
+       #         for date, g in d.groupby(d.TRANSACTION_DATE.dt.date):
+       #             if len(g) >= 2:
+       #                 if len(g.loc[g['FT_TYPE_FLG'] == 'AD']) == len(g.loc[g['FT_TYPE_FLG'] == 'AX']):
+       #                     continue
+       #                 elif len(g.loc[g['FT_TYPE_FLG'] == 'AD']) >= len(g.loc[g['FT_TYPE_FLG'] == 'AX'])+2:
+       #                 #print(nymfid)
+       #                     if not g['AMOUNT'].is_unique:
+       #                         res.append(nymfid)
+       #                         print("Saved: %i" % nymfid)
+       # return res
+
+def _multi_wdex_worker(df, nymfid):
+    d = df.loc[df['NYMFID'] == nymfid]
+    d = d.loc[d['PARENT_ID'].str[-4:] == 'WDEX']
+    if len(d) >= 2:
+        for date, g in d.groupby(d.TRANSACTION_DATE.dt.date):
+            if len(g) >= 2:
+                if len(g.loc[g['FT_TYPE_FLG'] == 'AD']) == len(g.loc[g['FT_TYPE_FLG'] == 'AX']):
+                    continue
+                elif len(g.loc[g['FT_TYPE_FLG'] == 'AD']) >= len(g.loc[g['FT_TYPE_FLG'] == 'AX'])+2:
+                    if not g['AMOUNT'].is_unique:
+                        return nymfid
