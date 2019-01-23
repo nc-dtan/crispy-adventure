@@ -7,7 +7,7 @@ from utils import is_integer
 from cachetools import cached
 import swifter
 import multiprocessing
-from utils import d
+from utils import to_amount
 
 
 # df = psrm.afregning.join(afr, on='NYMFID')
@@ -26,11 +26,20 @@ from utils import d
 # wd['ud_sums'] = ud_sums
 
 
-def udligning_debt_interest(nymfid, psrm):
+def und_udligning_total_split(nymfid, psrm):
     df = psrm.udligning.query('NYMFID == @nymfid')
+    df = df.query('Daekningstype != "FORDKORR"')
     hf = df.query('DMIFordringTypeKategori == "HF"')
     ir = df.query('DMIFordringTypeKategori != "HF"')
-    return hr['AMOUNT'].sum()
+    return hf['AMOUNT'].sum().round(2), ir['AMOUNT'].sum().round(2)
+
+
+def und_afregning_total_split(nymfid, psrm):
+    df = psrm.underretning.query('NYMFID == @nymfid')
+    hf = df.query('DMIFordringTypeKategori == "HF"')
+    ir = df.query('DMIFordringTypeKategori != "HF"')
+    return hf['AMOUNT'].sum().round(2), ir['AMOUNT'].sum().round(2)
+
 
 def total(df=None):
     return df.groupby('NYMFID')['AMOUNT'].sum().round(2)
@@ -81,10 +90,10 @@ if __name__ == '__main__':
     global acl
     acl = get_acl(psrm)
     payids = udl['EFIBETALINGSIDENTIFIKATOR'].values
-    udl['TRANSACTION_DATE'] = get_afs(payids)
+    #udl['TRANSACTION_DATE'] = get_afs(payids)
 
-    df = udl.query('~double & ~TRANSACTION_DATE.isnull()')
-    df = df[df['TRANSACTION_DATE'] <= '2018-12-31']
+    #df = udl.query('~double & ~TRANSACTION_DATE.isnull()')
+    #df = df[df['TRANSACTION_DATE'] <= '2018-12-31']
 
 
 #     for idx, efi in tqdm(enumerate(udligning['EFIBETALINGSIDENTIFIKATOR'])):
