@@ -66,7 +66,7 @@ class Udtraek(Data):
 
     def multi_CATU(self, ncpus=None):
         if ncpus is None:
-            ncpus = cpu_count()
+            ncpus = cpu_count() - 1
         cols = ['NYMFID', 'TRANSACTION_DATE', 'PARENT_ID']
         temp = self.df.loc[:, cols]
         nymfids = temp['NYMFID'].unique()
@@ -76,7 +76,7 @@ class Udtraek(Data):
 
     def ident_CATU(self, ncpus=None):
         if ncpus is None:
-            ncpus = cpu_count()
+            ncpus = cpu_count() - 1
         cols = ['NYMFID', 'TRANSACTION_DATE', 'PARENT_ID', 'AMOUNT']
         temp = self.df.loc[:, cols]
         nymfids = temp['NYMFID'].unique()
