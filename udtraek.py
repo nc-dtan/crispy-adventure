@@ -117,3 +117,17 @@ class Udtraek(Data):
             results.append(mfr)
         return pd.DataFrame(results)
 
+    def multi_wdex(self):
+        res = []
+        cols = ['NYMFID', 'TRANSACTION_DATE', 'PARENT_ID', 'AMOUNT']
+        temp = self.df.loc[:, cols]
+        nymfids = tmep['NYMFID'].unique()
+        temp['AMOUNT'] = to_amount(temp['AMOUNT'])
+        for nymfid in tqdm(nymfids):
+            d = temp.loc[temp['NYMFID'] == nymfid, :]
+            d = d.loc[['PARENT_ID'].str[-4:] == 'WDEX']
+            if len(d) >= 2:
+                for g in d.groupby(d.TRANSACTION_DATE.dt.date):
+                    if len(g) >= 2:
+                        if not g['AMOUNT'].is_unique:
+                            res.append(nymfid)
