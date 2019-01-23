@@ -20,3 +20,4 @@ xlrd==1.2.0
 gitpython==2.1.11
 xlsxwriter==1.1.2
 tqdm==4.29.1
+pathos==0.2.3
