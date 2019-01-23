@@ -21,3 +21,5 @@ gitpython==2.1.11
 xlsxwriter==1.1.2
 tqdm==4.29.1
 pathos==0.2.3
+lxml==4.3.0
+dicttoxml==1.7.4
