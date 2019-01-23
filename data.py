@@ -8,6 +8,9 @@ class Data:
     def __repr__(self):
         return self.df.to_string()
 
+    def __len__(self):
+        return len(self.df)
+
     @property
     def sum_amount(self):
         return round(sum(self.df['AMOUNT']), 2)
