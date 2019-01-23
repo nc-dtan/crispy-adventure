@@ -40,7 +40,7 @@ def load_dw_rpt(path, cache='fordringsaldo.pkl'):
 def und_udligning_total_split(nymfid, psrm):
     """Get total udligning sum for NYMFID (underretning)."""
     df = psrm.udligning.query('NYMFID == @nymfid')
-    df = df.query('Daekningstype != "FORDKORR"')
+    df = df.query('Daekningstype != "FORDKORR"')  # TODO: need to test
     hf = df.query('DMIFordringTypeKategori == "HF"')
     ir = df.query('DMIFordringTypeKategori != "HF"')
     return hf['AMOUNT'].sum().round(2), ir['AMOUNT'].sum().round(2)
@@ -49,6 +49,7 @@ def und_udligning_total_split(nymfid, psrm):
 def und_afregning_total_split(nymfid, psrm):
     """Get total afregning sum for NYMFID (underretning)."""
     df = psrm.underretning.query('NYMFID == @nymfid')
+    df = df.query('Daekningstype != "FORDKORR"')  # TODO: need to test
     hf = df.query('DMIFordringTypeKategori == "HF"')
     ir = df.query('DMIFordringTypeKategori != "HF"')
     return hf['AMOUNT'].sum().round(2), ir['AMOUNT'].sum().round(2)
