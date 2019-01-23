@@ -1,66 +1,39 @@
-import numpy as np
+from multiprocessing import Pool
 import pandas as pd
-import pickle
-import multiprocessing
-import time
-import concurrent.futures
 from tqdm import tqdm
-from utils import is_integer
-from udtraek import Udtraek
-import os
+from default_paths import path_v4, v4
+import psrm_utils
+import totals
 
-def settlement_id(nymfid):
-    d = temp.loc[temp['NYMFID'] == nymfid, :]
-    return {'NYMFID' : nymfid,
-            'total_HF' : sum_amount_code(d, code='DKHFEX') + sum_amount_partial(d),
-            'total_IR' : sum_amount_code(d)
-            }
 
-def sum_amount(df):
+def settlement_by_id(nymfid):
+    """Sum total by NYMFID from all report sheets."""
+    global psrm
+    acl = psrm.udtraeksdata.query('NYMFID == @nymfid')
+    acl_HF = totals.sum_code(acl, code='DKHFEX') + totals.sum_partial(acl)
+    udl_HF, udl_IR = totals.udl_split(nymfid, psrm)
+    afr_HF, afr_IR = totals.afr_split(nymfid, psrm)
+    return {'NYMFID': nymfid,
+            'acl_HF': acl_HF,
+            'acl_IR': totals.sum_code(acl),
+            'und_udl_HF': udl_HF,
+            'und_udl_IR': udl_IR,
+            'und_afr_HF': afr_HF,
+            'und_afr_IR': afr_IR, }
 
-    idx = [is_integer(a) for a in df['PARENT_ID']]
-    if idx[0] == False and len(idx) == 1:
-        return 0
-    else:
-        return round(sum(df.loc[idx, 'AMOUNT']),2)
 
-def sum_amount_partial(df):
-        return sum_amount(df) - sum_amount_code(df)
-
-def sum_amount_code(df, code='DKCSHACT'):
-    idx = df['PARENT_ID'] == code
-    if idx.values[0] == False and len(idx) == 1:
-        return 0
-    else:
-        return round(sum(df.loc[idx, 'AMOUNT']),2)
-
-with open('psrm_udtraek.pkl', 'rb') as f:
-    a = pickle.load(f)
-
-df = a.udtraeksdata
-if os.path.exists('settlement.csv'):
-    settlement = pd.read_csv('settlement.csv')
-else:
-    start_date = '2000-01-01'
-    end_date = '2019-01-01'
+if __name__ == '__main__':
+    global psrm
+    psrm = psrm_utils.cache_psrm(path=path_v4, input=v4)
     cols = ['NYMFID', 'TRANSACTION_DATE', 'PARENT_ID', 'AMOUNT']
-    mask = (start_date <= df['TRANSACTION_DATE']) & (df['TRANSACTION_DATE'] <= end_date)
-    temp = df[mask]
-    temp = temp.loc[:, cols]
-    nymfids = temp['NYMFID'].unique()
-    
-    time_start = time.time()
-    with multiprocessing.Pool(processes = 8) as p:
-        results = list(tqdm(p.imap(settlement_id, nymfids), total=len(nymfids)))
-    
-    time_end = time.time()
-    print("         ", time_end-time_start)
-    settlement = pd.DataFrame(results)
-    settlement.to_csv('settlement.csv', index=False)
-    
-DW_settle = np.genfromtxt('../Data/DataV3/fordringsaldo.rpt', skip_header=2, skip_footer=2)
-DW_settle = pd.DataFrame(DW_settle, columns=['NYMFID', 'SALDO_HF','SALDO_RENTER'])
-DW_settle['NYMFID'] = DW_settle['NYMFID'].astype('int64')
-DW_settle.set_index('NYMFID', inplace=True)
-settlement.set_index('NYMFID', inplace=True)
-Settle_compare = DW_settle.join(settlement, on='NYMFID')
+    acl = psrm_utils.time_cut(psrm.udtraeksdata[cols])
+    ids = acl['NYMFID'].unique()
+    ids = ids[:200]
+    with Pool(7) as p:
+        results = list(tqdm(p.imap(settlement_by_id, ids), total=len(ids)))
+    settle = pd.DataFrame(results).set_index('NYMFID')
+    settle.to_csv('settlement.csv', index=False)
+
+    # compare our total with DW totals
+    dw_settle = psrm_utils.load_dw_rpt('../Data/v4/fordringsaldo.rpt')
+    compare = dw_settle.join(settle, on='NYMFID')

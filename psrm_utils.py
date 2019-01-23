@@ -6,10 +6,15 @@ from psrm_ci_ft_base import PSRM_CI_FT_BASE
 from utils import to_amount
 
 
+def time_cut(df, start_date='2000-01-01', end_date='2019-01-01'):
+    """Return time slice between TRANSACTION_DATEs."""
+    query = '@start_date <= TRANSACTION_DATE & TRANSACTION_DATE <= @end_date'
+    return df.query(query)
+
+
 def cache_psrm(cache='psrm.pkl', force=False, *args, **kwargs):
     """Load and create cached psrm class instance.
        psrm_kwargs is PSRM_CI_FT_BASE's arguments."""
-
     if not os.path.exists(cache) or force:
         print('Loading data from excel...')
         psrm = PSRM_CI_FT_BASE(*args, **kwargs)
@@ -26,33 +31,16 @@ def load_dw_rpt(path, cache='fordringsaldo.pkl'):
     """Load weird rpt from DW export."""
     if not os.path.exists(cache):
         arr = numpy.genfromtxt(path, skip_header=2, skip_footer=1)
-        header = ['NYMFID', 'FH_Saldo', 'IR_Saldo']  # custom header
+        header = ['NYMFID', 'SALDO_HF', 'SALDO_RENTER']  # custom header
         df = pd.DataFrame(arr, columns=header)
         df['NYMFID'] = df['NYMFID'].astype('int64')
-        df['FH_Saldo'] = to_amount(df['FH_Saldo'])
-        df['IR_Saldo'] = to_amount(df['IR_Saldo'])
+        df['SALDO_HF'] = to_amount(df['SALDO_HF'])
+        df['SALDO_RENTER'] = to_amount(df['SALDO_RENTER'])
+        df.set_index('NYMFID', inplace=True)
         df.to_pickle(cache)
     else:
         df = pd.read_pickle(cache)
     return df
-
-
-def und_udligning_total_split(nymfid, psrm):
-    """Get total udligning sum for NYMFID (underretning)."""
-    df = psrm.udligning.query('NYMFID == @nymfid')
-    df = df.query('Daekningstype != "FORDKORR"')  # TODO: need to test
-    hf = df.query('DMIFordringTypeKategori == "HF"')
-    ir = df.query('DMIFordringTypeKategori != "HF"')
-    return hf['AMOUNT'].sum().round(2), ir['AMOUNT'].sum().round(2)
-
-
-def und_afregning_total_split(nymfid, psrm):
-    """Get total afregning sum for NYMFID (underretning)."""
-    df = psrm.underretning.query('NYMFID == @nymfid')
-    df = df.query('Daekningstype != "FORDKORR"')  # TODO: need to test
-    hf = df.query('DMIFordringTypeKategori == "HF"')
-    ir = df.query('DMIFordringTypeKategori != "HF"')
-    return hf['AMOUNT'].sum().round(2), ir['AMOUNT'].sum().round(2)
 
 
 if __name__ == '__main__':
