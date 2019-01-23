@@ -118,8 +118,7 @@ def _ident_CATU_worker(df, nymfid):
         if len(amounts) == 3:
             AMT = abs(amounts).unique()
             if len(AMT) == 1:
-                res.append(nymfid)
-                break
+                return nymfid
 
 
 def _CATU_common(df, nymfid):
