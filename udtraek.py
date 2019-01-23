@@ -72,7 +72,7 @@ class Udtraek(Data):
         nymfids = temp['NYMFID'].unique()
         pool = ProcessingPool(ncpus=ncpus)
         result = pool.map(lambda x: _multi_CATU_worker(temp, x), nymfids)
-        return list(result)
+        return list(filter(None, result))
 
     def ident_CATU(self, ncpus=None):
         if ncpus is None:
@@ -82,7 +82,7 @@ class Udtraek(Data):
         nymfids = temp['NYMFID'].unique()
         pool = ProcessingPool(ncpus=ncpus)
         result = pool.map(lambda x: _ident_CATU_worker(temp, x), nymfids)
-        return list(result)
+        return list(filter(None, result))
 
     def settlement(self, start_date='2000-01-01', end_date='2019-01-01'):
         cols = ['NYMFID', 'TRANSACTION_DATE', 'PARENT_ID', 'AMOUNT']
