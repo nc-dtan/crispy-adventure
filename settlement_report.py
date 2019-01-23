@@ -11,36 +11,6 @@ def amount_sum(df):
     return df['AMOUNT'].sum().round(2)
 
 
-def acl_sum(x):
-    return totals.sum_code(x, code='DKHFEX') + totals.sum_partial(x)
-
-def sum_amount(df):
-    idx = [is_integer(a) for a in df['PARENT_ID']]
-    if idx[0] is False and len(idx) == 1:
-        return 0
-    else:
-        return round(sum(df.loc[idx, 'AMOUNT']), 2)
-
-
-def sum_code(df, code='DKCSHACT'):
-    idx = df['PARENT_ID'] == code
-    if idx.values[0] is False and len(idx) == 1:
-        return 0
-    else:
-        return round(sum(df.loc[idx, 'AMOUNT']), 2)
-
-
-def sum_partial(df):
-    return sum_amount(df) - sum_code(df)
-
-def sum_amount(df):
-    idx = [is_integer(a) for a in df['PARENT_ID']]
-    if idx[0] is False and len(idx) == 1:
-        return 0
-    else:
-        return round(sum(df.loc[idx, 'AMOUNT']), 2)
-
-
 def settlement(nymfid, acl_HF, udl_hf, udl_ir, afr_hf, afr_ir):
     """Sum total by NYMFID from all report sheets."""
 
@@ -99,9 +69,9 @@ if __name__ == '__main__':
     intr.set_index('NYMFID', inplace=True)
 
     rep = pd.DataFrame(acl['NYMFID'].unique(), columns=['NYMFID'])
-    rep = pd.merge(rep, debt, on='NYMFID', how='left')  #.set_index('NYMFID')
-    rep = pd.merge(rep, pays, on='NYMFID', how='left')  #.set_index('NYMFID')
-    rep = pd.merge(rep, intr, on='NYMFID', how='left')  #.set_index('NYMFID')
+    rep = pd.merge(rep, debt, on='NYMFID', how='left')
+    rep = pd.merge(rep, pays, on='NYMFID', how='left')
+    rep = pd.merge(rep, intr, on='NYMFID', how='left')
 
     rep = rep.fillna(0)
     rep['REMAIN'] = round(rep['DEBT'] + (rep['PAYMENT'] - rep['INTEREST']), 2)
@@ -111,32 +81,22 @@ if __name__ == '__main__':
     ids = rep.query('REMAIN != 0.')['NYMFID'].unique()
 
     udl = psrm.udligning
+    udl = udl[udl['NYMFID'].isin(ids)]
     udl = udl.query('Daekningstype != "FORDKORR"')  # TODO: confirm
-    udl_hf = udl.query('DMIFordringTypeKategori == "HF"')
-    udl_ir = udl.query('DMIFordringTypeKategori != "HF"')
+    udl['ISHF'] = udl['DMIFordringTypeKategori'] == 'HF'
+    udl = udl.query('ISHF').groupby('NYMFID')['AMOUNT'].sum().reset_index()
+    udl.rename(columns={'AMOUNT': 'UDL'}, inplace=True)
+    udl.set_index('NYMFID', inplace=True)
+    rep = pd.merge(rep, udl, on='NYMFID', how='left')
 
     afr = psrm.underretning
-    afr = afr.query('Daekningstype != "FORDKORR"')    # TODO: confirm
-    afr_hf = afr.query('DMIFordringTypeKategori == "HF"')
-    afr_ir = afr.query('DMIFordringTypeKategori != "HF"')
-    results = []
-    for i in tqdm(ids):
-    #for i in ids:
-        acl_HF = rep.query('NYMFID == @i')['REMAIN'].iloc[0]
-        results.append(settlement(i,
-                                  acl_HF,
-                                  udl_hf.query('NYMFID == @i'),
-                                  udl_ir.query('NYMFID == @i'),
-                                  afr_hf.query('NYMFID == @i'),
-                                  afr_ir.query('NYMFID == @i'),
-                                  )
-                       )
-
-    # with Pool(7) as p:
-    #     results = list(tqdm(p.imap(settlement_by_id, ids), total=len(ids)))
-    settle = pd.DataFrame(results).set_index('NYMFID')
-    settle.to_csv('settlement.csv', index=False)
-
-    # compare our total with DW totals
-    dw_settle = psrm_utils.load_dw_rpt('../Data/v4/fordringsaldo.rpt')
-    compare = dw_settle.join(settle, on='NYMFID')
+    afr = afr[afr['NYMFID'].isin(ids)]
+    afr = afr.query('Daekningstype != "FORDKORR"')  # TODO: confirm
+    afr['ISHF'] = afr['DMIFordringTypeKategori'] == 'HF'
+    afr = afr.query('ISHF').groupby('NYMFID')['AMOUNT'].sum().reset_index()
+    afr.rename(columns={'AMOUNT': 'AFR'}, inplace=True)
+    afr.set_index('NYMFID', inplace=True)
+    rep = pd.merge(rep, afr, on='NYMFID', how='left')
+    rep.set_index('NYMFID', inplace=True)
+    assert rep.index.is_unique
+    rep.to_pickle('rep.pkl')
