@@ -126,20 +126,22 @@ def _multi_wdex_worker(df, nymfid):
 
 
 def _multi_CATU_worker(df, nymfid):
-    timestamps = _CATU_common(df, nymfid)
+    d = _CATU_common(df, nymfid)
     if timestamps is None:
         return None
+    timestamps = d['TRANSACTION_DATE'].unique()
     for timestamp in timestamps:
-        if len(df.loc[df['TRANSACTION_DATE'] == timestamp, :]) == 3:
+        if len(d.loc[d['TRANSACTION_DATE'] == timestamp, :]) == 3:
             return nymfid
 
 
 def _ident_CATU_worker(df, nymfid):
-    timestamps = _CATU_common(df, nymfid)
-    if timestamps is None:
+    d = _CATU_common(df, nymfid)
+    if d is None:
         return None
+    timestamps = d['TRANSACTION_DATE'].unique()
     for timestamp in timestamps:
-        amounts = df.loc[df['TRANSACTION_DATE'] == timestamp, 'AMOUNT']
+        amounts = d.loc[d['TRANSACTION_DATE'] == timestamp, 'AMOUNT']
         if len(amounts) == 3:
             AMT = abs(amounts).unique()
             if len(AMT) == 1:
@@ -151,4 +153,4 @@ def _CATU_common(df, nymfid):
     d = d.loc[d['PARENT_ID'] == 'DKCSHACT', :]
     if len(d) <= 3:
         return None
-    return d['TRANSACTION_DATE'].unique()
+    return d
