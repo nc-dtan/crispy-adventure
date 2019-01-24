@@ -88,7 +88,7 @@ v4 = {
 
 
 if __name__ == '__main__':
-    from psrm_ci_ft_base import PSRM_CI_FT_BASE
+    from psrm.psrm_ci_ft_base import PSRM_CI_FT_BASE
     psrm_v1 = PSRM_CI_FT_BASE(path=path_v1, input=v1)
     psrm_v2 = PSRM_CI_FT_BASE(path=path_v2, input=v2)
     psrm_v3 = PSRM_CI_FT_BASE(path=path_v3, input=v3)

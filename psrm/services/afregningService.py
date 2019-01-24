@@ -1,15 +1,15 @@
-from udligning.afregning import Afregning
-from udligning.afregning import BeloebStruktur
-from udligning.afregning import IndbetalingOplysninger
-from udligning.afregning import KundeStruktur
-from udligning.afregning import OmfattetAfUdligningAfregning
-from udligning.afregning import UdligningAfregning
-from udligning.afregning import UdligningAfregningListe
-from udligning.enums.aktivitettype import AktivitetType
-from udligning.enums.artkode import ArtKode
-from udligning.enums.kundetype import KundeType
-from udligning.enums.typekategori import TypeKategori
-from udligning.enums.typekode import TypeKode
+from psrm.udligning.afregning import Afregning
+from psrm.udligning.afregning import BeloebStruktur
+from psrm.udligning.afregning import IndbetalingOplysninger
+from psrm.udligning.afregning import KundeStruktur
+from psrm.udligning.afregning import OmfattetAfUdligningAfregning
+from psrm.udligning.afregning import UdligningAfregning
+from psrm.udligning.afregning import UdligningAfregningListe
+from psrm.enums.aktivitettype import AktivitetType
+from psrm.enums.artkode import ArtKode
+from psrm.enums.kundetype import KundeType
+from psrm.enums.typekategori import TypeKategori
+from psrm.enums.typekode import TypeKode
 
 
 def convert_to_xml(df, fname=None):

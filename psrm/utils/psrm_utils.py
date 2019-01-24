@@ -2,8 +2,8 @@ import os
 import pickle
 import pandas as pd
 import numpy
-from psrm_ci_ft_base import PSRM_CI_FT_BASE
-from utils import to_amount
+from psrm.psrm_ci_ft_base import PSRM_CI_FT_BASE
+from psrm.utils.utils import to_amount
 
 
 def cache_psrm(cache='psrm.pkl', force=False, *args, **kwargs):

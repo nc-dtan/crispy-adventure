@@ -1,9 +1,8 @@
-from data import Data
-from utils import is_integer, convert_date_from_str
+from psrm.data import Data
+from psrm.utils.utils import is_integer, convert_date_from_str, to_amount
 from datetime import datetime, timedelta
 from tqdm import tqdm
 import pandas as pd
-from utils import to_amount
 from pathos.multiprocessing import ProcessingPool
 from pathos.multiprocessing import cpu_count
 

@@ -1,12 +1,12 @@
 import os
 import pickle
 import pandas as pd
-import validator
-from afregning import Afregning
-from underretning import Underretning
-from udtraek import Udtraek
-from udligning import Udligning
-import utils
+import psrm.validator
+from psrm.afregning import Afregning
+from psrm.underretning import Underretning
+from psrm.udtraek import Udtraek
+from psrm.udligning import Udligning
+from psrm.utils import utils
 
 class PSRM_CI_FT_BASE:
 

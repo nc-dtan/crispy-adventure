@@ -1,5 +1,5 @@
-from data import Data
-from utils import to_amount
+from psrm.data import Data
+from psrm.utils import to_amount
 
 
 class Afregning(Data):

@@ -1,12 +1,6 @@
 from lxml import etree
 from dicttoxml import dicttoxml
 
-from .enums.artkode import ArtKode
-from .enums.typekategori import TypeKategori
-from .enums.typekode import TypeKode
-from .enums.aktivitettype import AktivitetType
-from .enums.kundetype import KundeType
-
 
 class Afregning:
     def __init__(self, udligningAfregningListe=None):
