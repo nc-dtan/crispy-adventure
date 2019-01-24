@@ -6,8 +6,10 @@ Data/
 *.csv
 *.rpt
 *.txt
+*.xml
 !README.txt
 profiles.json
+.vscode
 
 
 # Byte-compiled / optimized / DLL files
