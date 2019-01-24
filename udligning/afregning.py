@@ -1,11 +1,11 @@
 from lxml import etree
 from dicttoxml import dicttoxml
 
-from enums.artkode import ArtKode
-from enums.typekategori import TypeKategori
-from enums.typekode import TypeKode
-from enums.aktivitettype import AktivitetType
-from enums.kundetype import KundeType
+from .enums.artkode import ArtKode
+from .enums.typekategori import TypeKategori
+from .enums.typekode import TypeKode
+from .enums.aktivitettype import AktivitetType
+from .enums.kundetype import KundeType
 
 
 class Afregning:
@@ -16,7 +16,7 @@ class Afregning:
     def __dict__(self):
         return {'UdligningAfregningListe': self.udligningAfregningListe.__dict__}
 
-    def to_xml(self, fname=None):
+    def to_xml(self, fname=None) -> str:
         if fname is None:
             fname = 'test_sample.xml'
         xml = dicttoxml(self.__dict__, root=False, attr_type=False)
@@ -25,6 +25,7 @@ class Afregning:
         xml_pretty = etree.tostring(root, pretty_print=True).decode()
         with open(fname, 'w') as f:
             f.write(xml_pretty)
+        return xml_pretty
 
 
 class UdligningAfregningListe:
@@ -132,24 +133,3 @@ class KundeStruktur:
         self.KundeNummer = kundeNummer
         self.KundeType = kundeType.value
         self.KundeNavn = navn
-
-
-if __name__ == '__main__':
-    kunde = KundeStruktur('0505784618', KundeType.CPR, 'SKAT Test person 9961')
-    indbetalingOplysninger = IndbetalingOplysninger(938953219519, AktivitetType.DAEKNING, 'Some text', kunde)
-    afregningBeloeb = BeloebStruktur('FordringAfregning', 142, 142, 'DKK')
-    restBeloeb = BeloebStruktur('DMIFordringRest', 716.45, 716.45, 'DKK')
-    omfattetAfUdligningAfregning = OmfattetAfUdligningAfregning(1337, 1337, 4224,
-                        ArtKode.INDR, TypeKode.PSRESTS, TypeKategori.HF, '2018-05-01+02:00',
-                        indbetalingOplysninger, afregningBeloeb, restBeloeb)
-    fordringBeloeb = BeloebStruktur('FordringHaverAfregning', 200.00, 200.00, 'DKK')
-    udligningAfregning = UdligningAfregning(11, fordringBeloeb, '2018-05-01+02:00',
-                        '2018-05-01+02:00',
-                        '2018-05-01+02:00',
-                        omfattetAfUdligningAfregning)
-    udligningAfregningListe = UdligningAfregningListe(udligningAfregning)
-    afregning = Afregning(udligningAfregningListe)
-
-    xml = dicttoxml(afregning.__dict__, root=False, attr_type=False)
-    root = etree.fromstring(xml.decode())
-    print(etree.tostring(root, pretty_print=True).decode())
