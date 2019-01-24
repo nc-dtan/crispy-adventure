@@ -114,7 +114,7 @@ def _multi_wdex_worker(df, nymfid):
     d = df.loc[df['NYMFID'] == nymfid]
     d = d.loc[d['PARENT_ID'].str[-4:] == 'WDEX']
     if len(d) >= 2:
-        for date, g in d.groupby(d.TRANSACTION_DATE.dt.date):
+        for _, g in d.groupby(d.TRANSACTION_DATE.dt.date):
             if len(g) >= 2:
                 AD_len = len(g.loc[g['FT_TYPE_FLG'] == 'AD'])
                 AX_len = len(g.loc[g['FT_TYPE_FLG'] == 'AX'])
