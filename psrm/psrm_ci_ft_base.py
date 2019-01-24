@@ -114,11 +114,11 @@ class PSRM_CI_FT_BASE:
 
 
 if __name__ == '__main__':
-    from psrm.default_paths import path_v4, v4
     from psrm.utils.psrm_utils import cache_psrm
+    import psrm
 
     # load psrm data with cache
-    psrm = cache_psrm(path=path_v4, input=v4)
+    psrm = cache_psrm(path=psrm.path_v4, input=psrm.v4)
 
     # make a nicely formatted excel sheet
     utils.df_to_excel(psrm.afregning.sample(50))

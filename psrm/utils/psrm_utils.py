@@ -38,5 +38,5 @@ def load_dw_rpt(path, cache='fordringsaldo.pkl'):
 
 
 if __name__ == '__main__':
-    from psrm.default_paths import path_v4, v4
-    psrm = cache_psrm(path=path_v4, input=v4)
+    import psrm
+    psrm = cache_psrm(path=psrm.path_v4, input=psrm.v4)
