@@ -120,14 +120,14 @@ class Udtraek(Data):
 
     def multi_wdex(self, ncpus=None):
         if ncpus is None:
-            ncpus = cpu_count() -1
+            ncpus = cpu_count() - 1
         cols = ['NYMFID', 'TRANSACTION_DATE', 'PARENT_ID', 'AMOUNT', 'FT_TYPE_FLG']
         temp = self.df.loc[:, cols]
         nymfids = temp['NYMFID'].unique()
         temp['AMOUNT'] = to_amount(temp['AMOUNT'])
         pool = ProcessingPool(ncpus=ncpus)
         result = pool.map(lambda x: _multi_wdex_worker(temp, x), nymfids)
-        return list(filter(None,result))
+        return list(filter(None, result))
 
 def _multi_wdex_worker(df, nymfid):
     d = df.loc[df['NYMFID'] == nymfid]
@@ -135,8 +135,10 @@ def _multi_wdex_worker(df, nymfid):
     if len(d) >= 2:
         for date, g in d.groupby(d.TRANSACTION_DATE.dt.date):
             if len(g) >= 2:
-                if len(g.loc[g['FT_TYPE_FLG'] == 'AD']) == len(g.loc[g['FT_TYPE_FLG'] == 'AX']):
+                AD_len = len(g.loc[g['FT_TYPE_FLG'] == 'AD'])
+                AX_len = len(g.loc[g['FT_TYPE_FLG'] == 'AX'])
+                if AD_len == AX_len:
                     continue
-                elif len(g.loc[g['FT_TYPE_FLG'] == 'AD']) >= len(g.loc[g['FT_TYPE_FLG'] == 'AX'])+2:
+                elif AD_len == AX_len+2:
                     if not g['AMOUNT'].is_unique:
                         return nymfid
