@@ -1,4 +1,4 @@
-from psrm.data import Data
+from psrm.datamodel.data import Data
 from psrm.utils.utils import to_amount
 
 

@@ -1,4 +1,4 @@
-from psrm.data import Data
+from psrm.datamodel.data import Data
 from psrm.utils.utils import is_integer, convert_date_from_str, to_amount
 from datetime import datetime, timedelta
 from tqdm import tqdm
@@ -127,7 +127,7 @@ def _multi_wdex_worker(df, nymfid):
 
 def _multi_CATU_worker(df, nymfid):
     d = _CATU_common(df, nymfid)
-    if timestamps is None:
+    if d is None:
         return None
     timestamps = d['TRANSACTION_DATE'].unique()
     for timestamp in timestamps:
