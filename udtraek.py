@@ -128,20 +128,6 @@ class Udtraek(Data):
         pool = ProcessingPool(ncpus=ncpus)
         result = pool.map(lambda x: _multi_wdex_worker(temp, x), nymfids)
         return list(filter(None,result))
-       # for nymfid in tqdm(nymfids):
-       #     d = temp.loc[temp['NYMFID'] == nymfid, :]
-       #     d = d.loc[d['PARENT_ID'].str[-4:] == 'WDEX']
-       #     if len(d) >= 2:
-       #         for date, g in d.groupby(d.TRANSACTION_DATE.dt.date):
-       #             if len(g) >= 2:
-       #                 if len(g.loc[g['FT_TYPE_FLG'] == 'AD']) == len(g.loc[g['FT_TYPE_FLG'] == 'AX']):
-       #                     continue
-       #                 elif len(g.loc[g['FT_TYPE_FLG'] == 'AD']) >= len(g.loc[g['FT_TYPE_FLG'] == 'AX'])+2:
-       #                 #print(nymfid)
-       #                     if not g['AMOUNT'].is_unique:
-       #                         res.append(nymfid)
-       #                         print("Saved: %i" % nymfid)
-       # return res
 
 def _multi_wdex_worker(df, nymfid):
     d = df.loc[df['NYMFID'] == nymfid]
