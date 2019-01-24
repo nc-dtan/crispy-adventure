@@ -7,34 +7,12 @@ import psrm_utils
 import totals
 
 
-def amount_sum(df):
-    return df['AMOUNT'].sum().round(2)
-
-
-def settlement(nymfid, acl_HF, udl_hf, udl_ir, afr_hf, afr_ir):
-    """Sum total by NYMFID from all report sheets."""
-
-
-    udl_HF, udl_IR = amount_sum(udl_hf), amount_sum(udl_ir)
-
-    afr_HF, afr_IR = amount_sum(afr_hf), amount_sum(afr_ir)
-
-    return {'NYMFID': nymfid,
-            'acl_HF': acl_HF,
-            'acl_IR': totals.sum_code(acl),
-            'und_udl_HF': udl_HF,
-            'und_udl_IR': udl_IR,
-            'und_afr_HF': afr_HF,
-            'und_afr_IR': afr_IR, }
-
-
-def remaining_debt(x):
-    debt = x.query('ISDEBT')['AMOUNT'].sum()
-    payments = x.query('ISPAYMENT')['AMOUNT'].sum()
-    interests = x.query('ISCATU')['AMOUNT'].sum()
-    return debt - (payments + interests)
-
 if __name__ == '__main__':
+    # Assumptions
+    # ------------
+    #
+    # Only claimant id 1229 (DR).
+    #
     psrm = psrm_utils.cache_psrm(path=path_v4, input=v4)
     cols = ['NYMFID', 'TRANSACTION_DATE', 'PARENT_ID', 'AMOUNT', 'CLAIMANT_ID']
 
