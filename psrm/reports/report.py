@@ -2,7 +2,7 @@ import os, multiprocessing, datetime, pickle
 from timeit import default_timer as timer
 import pandas, git
 from tqdm import tqdm
-import psrm.psrm_ci_ft_base
+from psrm import psrm_ci_ft_base
 
 # check requirements.txt is met
 import pkg_resources

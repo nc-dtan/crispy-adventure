@@ -104,7 +104,7 @@ def _multi_CATU_worker(df, nymfid):
     if timestamps is None:
         return None
     for timestamp in timestamps:
-        if len(d.loc[d['TRANSACTION_DATE'] == timestamp, :]) == 3:
+        if len(df.loc[df['TRANSACTION_DATE'] == timestamp, :]) == 3:
             return nymfid
 
 
@@ -113,7 +113,7 @@ def _ident_CATU_worker(df, nymfid):
     if timestamps is None:
         return None
     for timestamp in timestamps:
-        amounts = d.loc[d['TRANSACTION_DATE'] == timestamp, 'AMOUNT']
+        amounts = df.loc[df['TRANSACTION_DATE'] == timestamp, 'AMOUNT']
         if len(amounts) == 3:
             AMT = abs(amounts).unique()
             if len(AMT) == 1:

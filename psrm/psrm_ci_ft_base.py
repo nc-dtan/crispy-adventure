@@ -1,11 +1,11 @@
 import os
 import pickle
 import pandas as pd
-import psrm.validator
-from psrm.afregning import Afregning
-from psrm.underretning import Underretning
-from psrm.udtraek import Udtraek
-from psrm.udligning import Udligning
+from psrm import validator
+from psrm.datamodel.afregning import Afregning
+from psrm.datamodel.underretning import Underretning
+from psrm.datamodel.udtraek import Udtraek
+from psrm.datamodel.udligning import Udligning
 from psrm.utils import utils
 
 class PSRM_CI_FT_BASE:
@@ -114,8 +114,8 @@ class PSRM_CI_FT_BASE:
 
 
 if __name__ == '__main__':
-    from default_paths import path_v4, v4
-    from psrm_utils import cache_psrm
+    from psrm.default_paths import path_v4, v4
+    from psrm.utils.psrm_utils import cache_psrm
 
     # load psrm data with cache
     psrm = cache_psrm(path=path_v4, input=v4)
