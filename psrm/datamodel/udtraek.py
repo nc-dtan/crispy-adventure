@@ -98,7 +98,6 @@ class Udtraek(Data):
             results.append(mfr)
         return pd.DataFrame(results)
 
-
     def multi_wdex(self, ncpus=None):
         if ncpus is None:
             ncpus = cpu_count() - 1
@@ -109,6 +108,7 @@ class Udtraek(Data):
         pool = ProcessingPool(ncpus=ncpus)
         result = pool.map(lambda x: _multi_wdex_worker(temp, x), nymfids)
         return list(filter(None, result))
+
 
 def _multi_wdex_worker(df, nymfid):
     d = df.loc[df['NYMFID'] == nymfid]
@@ -123,6 +123,7 @@ def _multi_wdex_worker(df, nymfid):
                 elif AD_len == AX_len+2:
                     if not g['AMOUNT'].is_unique:
                         return nymfid
+
 
 def _multi_CATU_worker(df, nymfid):
     timestamps = _CATU_common(df, nymfid)
