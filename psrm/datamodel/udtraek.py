@@ -1,9 +1,8 @@
-from data import Data
-from utils import is_integer, convert_date_from_str
+from psrm.datamodel.data import Data
+from psrm.utils.utils import is_integer, convert_date_from_str, to_amount
 from datetime import datetime, timedelta
 from tqdm import tqdm
 import pandas as pd
-from utils import to_amount
 from pathos.multiprocessing import ProcessingPool
 from pathos.multiprocessing import cpu_count
 
@@ -99,7 +98,6 @@ class Udtraek(Data):
             results.append(mfr)
         return pd.DataFrame(results)
 
-
     def multi_wdex(self, ncpus=None):
         if ncpus is None:
             ncpus = cpu_count() - 1
@@ -111,11 +109,12 @@ class Udtraek(Data):
         result = pool.map(lambda x: _multi_wdex_worker(temp, x), nymfids)
         return list(filter(None, result))
 
+
 def _multi_wdex_worker(df, nymfid):
     d = df.loc[df['NYMFID'] == nymfid]
     d = d.loc[d['PARENT_ID'].str[-4:] == 'WDEX']
     if len(d) >= 2:
-        for date, g in d.groupby(d.TRANSACTION_DATE.dt.date):
+        for _, g in d.groupby(d.TRANSACTION_DATE.dt.date):
             if len(g) >= 2:
                 AD_len = len(g.loc[g['FT_TYPE_FLG'] == 'AD'])
                 AX_len = len(g.loc[g['FT_TYPE_FLG'] == 'AX'])
@@ -125,19 +124,22 @@ def _multi_wdex_worker(df, nymfid):
                     if not g['AMOUNT'].is_unique:
                         return nymfid
 
+
 def _multi_CATU_worker(df, nymfid):
-    timestamps = _CATU_common(df, nymfid)
-    if timestamps is None:
+    d = _CATU_common(df, nymfid)
+    if d is None:
         return None
+    timestamps = d['TRANSACTION_DATE'].unique()
     for timestamp in timestamps:
         if len(d.loc[d['TRANSACTION_DATE'] == timestamp, :]) == 3:
             return nymfid
 
 
 def _ident_CATU_worker(df, nymfid):
-    timestamps = _CATU_common(df, nymfid)
-    if timestamps is None:
+    d = _CATU_common(df, nymfid)
+    if d is None:
         return None
+    timestamps = d['TRANSACTION_DATE'].unique()
     for timestamp in timestamps:
         amounts = d.loc[d['TRANSACTION_DATE'] == timestamp, 'AMOUNT']
         if len(amounts) == 3:
@@ -151,4 +153,4 @@ def _CATU_common(df, nymfid):
     d = d.loc[d['PARENT_ID'] == 'DKCSHACT', :]
     if len(d) <= 3:
         return None
-    return d['TRANSACTION_DATE'].unique()
+    return d

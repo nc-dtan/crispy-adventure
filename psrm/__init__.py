@@ -8,7 +8,7 @@
 # First value is a file name or a list of file names.
 # Second value is a sheet name.
 #
-# If multiple file names are given as a value then the program will concatinate 
+# If multiple file names are given as a value then the program will concatinate
 # the content to one table.
 #
 # Multiple Excel file or sheets are currently not implemented.
@@ -17,8 +17,8 @@
 # The particular data locations
 # ---------------------------
 #
-# We have so far recieved updated data multiple times which we organized i 
-# version folders. Running this file as a script should test all the locations.  
+# We have so far recieved updated data multiple times which we organized i
+# version folders. Running this file as a script should test all the locations.
 # Typical directory structure looks like this:
 #
 # Data/
@@ -41,12 +41,12 @@
 #     ├── Test.txt
 #     ├── Udligninger.xlsx
 #
-# 
+#
 # Notes
 # ------
 #
 # 'EXTERNAL_OBLIGATION_ID' is not found in v1 of udtraeksdata
-# 
+#
 #
 # Here are the default locations for the different locations:
 
@@ -88,10 +88,8 @@ v4 = {
 
 
 if __name__ == '__main__':
-    from psrm_ci_ft_base import PSRM_CI_FT_BASE
+    from psrm.psrm_ci_ft_base import PSRM_CI_FT_BASE
     psrm_v1 = PSRM_CI_FT_BASE(path=path_v1, input=v1)
     psrm_v2 = PSRM_CI_FT_BASE(path=path_v2, input=v2)
     psrm_v3 = PSRM_CI_FT_BASE(path=path_v3, input=v3)
     psrm_v4 = PSRM_CI_FT_BASE(path=path_v4, input=v4)
-
-

@@ -2,8 +2,8 @@ import os
 import pickle
 import pandas as pd
 import numpy
-from psrm_ci_ft_base import PSRM_CI_FT_BASE
-from utils import to_amount
+from psrm.psrm_ci_ft_base import PSRM_CI_FT_BASE
+from psrm.utils.utils import to_amount
 
 
 def cache_psrm(cache='psrm.pkl', force=False, *args, **kwargs):
@@ -38,5 +38,5 @@ def load_dw_rpt(path, cache='fordringsaldo.pkl'):
 
 
 if __name__ == '__main__':
-    from default_paths import path_v4, v4
-    psrm = cache_psrm(path=path_v4, input=v4)
+    import psrm
+    psrm = cache_psrm(path=psrm.path_v4, input=psrm.v4)

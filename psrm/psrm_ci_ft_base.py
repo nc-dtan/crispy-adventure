@@ -1,12 +1,12 @@
 import os
 import pickle
 import pandas as pd
-import validator
-from afregning import Afregning
-from underretning import Underretning
-from udtraek import Udtraek
-from udligning import Udligning
-import utils
+from psrm import validator
+from psrm.datamodel.afregning import Afregning
+from psrm.datamodel.underretning import Underretning
+from psrm.datamodel.udtraek import Udtraek
+from psrm.datamodel.udligning import Udligning
+from psrm.utils import utils
 
 class PSRM_CI_FT_BASE:
 
@@ -109,16 +109,16 @@ class PSRM_CI_FT_BASE:
         print('Sum of AFR: %.2f' % af.sum_amount)
         print('Sum of UDL: %.2f' % udl.sum_amount)
         print('Sum of UND: %.2f' % un.sum_amount)
-        print('Sum of UDT: %.2f' % ud.sum_amount(ud.df))
+        print('Sum of UDT: %.2f' % ud.sum_amount())
         print('-'*80)
 
 
 if __name__ == '__main__':
-    from default_paths import path_v4, v4
-    from psrm_utils import cache_psrm
+    from psrm.utils.psrm_utils import cache_psrm
+    import psrm
 
     # load psrm data with cache
-    psrm = cache_psrm(path=path_v4, input=v4)
+    psrm = cache_psrm(path=psrm.path_v4, input=psrm.v4)
 
     # make a nicely formatted excel sheet
     utils.df_to_excel(psrm.afregning.sample(50))
