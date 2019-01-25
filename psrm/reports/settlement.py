@@ -29,7 +29,8 @@ if __name__ == '__main__':
     acl = ps.udtraeksdata[acols]
     acl['EFFECTIVE_DATE'] = pd.to_datetime(acl['EFFECTIVE_DATE'])
     acl = acl.query('EFFECTIVE_DATE < @end_date')
-    acl = acl.query('CLAIMANT_ID == 1229')  # only DR
+    fhid = psrm.enums.fordringshaver.FordringsHaver.DR.value['Claimant_ID']
+    acl = acl.query('CLAIMANT_ID == @fhid')  # only DR
 
     acl['ISDEBT'] = ((acl['PARENT_ID'] == 'DKHFEX') |
                      (acl['PARENT_ID'] == 'DKOGEX') |

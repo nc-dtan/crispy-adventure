@@ -89,6 +89,7 @@ v4 = {
 from .utils import utils
 from .utils import psrm_utils
 from . import psrmDB
+from . import enums
 
 
 if __name__ == '__main__':
