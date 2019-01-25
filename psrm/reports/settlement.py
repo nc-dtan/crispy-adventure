@@ -1,5 +1,6 @@
 import pandas as pd
 import psrm
+from psrm.enums.justeringstype import JusteringsType as JT
 from psrm.utils import utils
 from psrm.utils import psrm_utils
 
@@ -32,12 +33,12 @@ if __name__ == '__main__':
     fhid = psrm.enums.fordringshaver.FordringsHaver.DR.value['Claimant_ID']
     acl = acl.query('CLAIMANT_ID == @fhid')  # only DR
 
-    acl['ISDEBT'] = ((acl['PARENT_ID'] == 'DKHFEX') |
-                     (acl['PARENT_ID'] == 'DKOGEX') |
-                     (acl['PARENT_ID'] == 'DKOREX') |
-                     (acl['PARENT_ID'] == 'DKIGEX') )
+    acl['ISDEBT'] = ((acl['PARENT_ID'] == JT.DKHFEX.value) |
+                     (acl['PARENT_ID'] == JT.DKOGEX.value) |
+                     (acl['PARENT_ID'] == JT.DKOREX.value) |
+                     (acl['PARENT_ID'] == JT.DKIGEX.value) )
     acl['ISPAY'] = [utils.is_integer(x) for x in acl['PARENT_ID'].values]
-    acl['ISCATU'] = acl['PARENT_ID'] == 'DKCSHACT'
+    acl['ISCATU'] = acl['PARENT_ID'] == JT.DKCSHACT.value
     assert ~acl.isnull().sum().sum()  # check no nulls in acl
 
     # Calculate the initial debt per NYMFID
