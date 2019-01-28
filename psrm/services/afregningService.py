@@ -1,15 +1,15 @@
-from psrm.korrektion.afregning import Afregning
-from psrm.korrektion.afregning import BeloebStruktur
-from psrm.korrektion.afregning import IndbetalingOplysninger
-from psrm.korrektion.afregning import KundeStruktur
-from psrm.korrektion.afregning import OmfattetAfUdligningAfregning
-from psrm.korrektion.afregning import UdligningAfregning
-from psrm.korrektion.afregning import UdligningAfregningListe
+import pandas as pd
+
 from psrm.enums.aktivitettype import AktivitetType
 from psrm.enums.artkode import ArtKode
 from psrm.enums.kundetype import KundeType
 from psrm.enums.typekategori import TypeKategori
 from psrm.enums.typekode import TypeKode
+from psrm.korrektion.afregning import (Afregning, BeloebStruktur,
+                                       IndbetalingOplysninger, KundeStruktur,
+                                       OmfattetAfUdligningAfregning,
+                                       UdligningAfregning,
+                                       UdligningAfregningListe)
 
 
 def convert_to_xml(s: pd.Series, fordringType: TypeKategori, fname: str=None) -> str:
@@ -45,9 +45,10 @@ if __name__ == '__main__':
     fname = lambda s, fordringType: f'{fordringType}-korrektion-{s}.xml'
     path = '../../../underret-report-example-Daniel-test.xlsx'
     df = pd.read_excel(path)
-    for row in df.iterrows():
+    for row in df.iloc[0:2].iterrows():
         s = row[1]
-        if !s.UDL_HF_OK:
+        if not s.UDL_HF_OK:
             fordringType = TypeKategori.HF
-            xml = convert_to_xml(s, fordringType, fname=fname(s.NYMFID, fordringType.value))
-    print(xml)
+        else:
+            fordringType = TypeKategori.IR
+        xml = convert_to_xml(s, fordringType, fname=fname(s.NYMFID, fordringType.value))
