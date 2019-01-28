@@ -10,6 +10,7 @@ Data/
 !README.txt
 profiles.json
 .vscode
+*.code-workspace
 
 
 # Byte-compiled / optimized / DLL files
