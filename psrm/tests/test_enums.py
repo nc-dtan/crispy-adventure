@@ -58,12 +58,12 @@ def test_typeKategori():
 
 def test_typeKode():
     assert TypeKode.PSARBMB.value == 'PSARBMB'
-    assert TypeKode.PSBSKAT.value == 'PSBSKAT '
-    assert TypeKode.PSRESTS.value == 'PSRESTS '
-    assert TypeKode.LIMEDIE.value == 'LIMEDIE '
-    assert TypeKode.POBØDPO.value == 'POBØDPO '
-    assert TypeKode.GEOPKRÆ.value == 'GEOPKRÆ '
-    assert TypeKode.REINDGI.value == 'REINDGI '
+    assert TypeKode.PSBSKAT.value == 'PSBSKAT'
+    assert TypeKode.PSRESTS.value == 'PSRESTS'
+    assert TypeKode.LIMEDIE.value == 'LIMEDIE'
+    assert TypeKode.POBØDPO.value == 'POBØDPO'
+    assert TypeKode.GEOPKRÆ.value == 'GEOPKRÆ'
+    assert TypeKode.REINDGI.value == 'REINDGI'
     assert TypeKode.UHFORSK.value == 'UHFORSK'
     assert TypeKode.UHÆGTEF.value == 'UHÆGTEF'
     assert TypeKode.REOPKRÆ.value == 'REOPKRÆ'
