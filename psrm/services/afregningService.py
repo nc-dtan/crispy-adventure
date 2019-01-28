@@ -17,8 +17,7 @@ def convert_to_xml(s: pd.Series, fordringType: TypeKategori, fname: str=None) ->
             fname = 'test_sample.xml'
     
     # TODO: Fill out these fields from data from the df
-    # kunde = KundeStruktur('0505784618', KundeType.CPR, 'SKAT Test person 9961')
-    kunde = KundeStruktur('', KundeType.CPR, '')
+    kunde = KundeStruktur('', '', '')
     indbetalingOplysninger = IndbetalingOplysninger(s.NYMFID, AktivitetType.KORREKTION,
                                                     'Korrektion på fordring', kunde)
     afregningBeloeb = BeloebStruktur('FordringAfregning', 142, 142, 'DKK')
