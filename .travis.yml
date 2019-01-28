@@ -25,6 +25,9 @@ install:
   # Testing requirements
   - travis_retry pip install -r test_requirements.txt
 
+  # Install package
+  - python setup.py install
+
 before_script:
   - cd psrm
 
