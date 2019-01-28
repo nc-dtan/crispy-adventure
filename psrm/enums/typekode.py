@@ -3,12 +3,12 @@ from enum import Enum
 
 class TypeKode(Enum):
     PSARBMB = 'PSARBMB'
-    PSBSKAT = 'PSBSKAT '
-    PSRESTS = 'PSRESTS '
-    LIMEDIE = 'LIMEDIE '
-    POBØDPO = 'POBØDPO '
-    GEOPKRÆ = 'GEOPKRÆ '
-    REINDGI = 'REINDGI '
+    PSBSKAT = 'PSBSKAT'
+    PSRESTS = 'PSRESTS'
+    LIMEDIE = 'LIMEDIE'
+    POBØDPO = 'POBØDPO'
+    GEOPKRÆ = 'GEOPKRÆ'
+    REINDGI = 'REINDGI'
     UHFORSK = 'UHFORSK'
     UHÆGTEF = 'UHÆGTEF'
     REOPKRÆ = 'REOPKRÆ'
