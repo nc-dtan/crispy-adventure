@@ -3,12 +3,11 @@ import cx_Oracle
 import pandas as pd
 
 
-with open('profiles.json') as f:
-    profiles = json.load(f)
-
-
 class PsrmDB:
     def __init__(self, env='VAL04'):
+        with open('profiles.json') as f:
+            profiles = json.load(f)
+
         self.ip = profiles[env]['ip']
         self.port = profiles[env]['port']
         self.sid = profiles[env]['sid']
