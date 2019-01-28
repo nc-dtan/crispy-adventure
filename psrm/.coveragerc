@@ -1,0 +1,16 @@
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == '__main__':
+    if self.verbose:
+
+[run]
+omit =
+    examples/*
+    __init__.py
+    datamodel/__init__.py
+    enums/__init__.py
+    korrektion/__init__.py
+    services/__init__.py
+    utils/__init__.py
+    tests/*

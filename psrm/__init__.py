@@ -86,6 +86,11 @@ v4 = {
   'Udtræk': [['3977.txt', 'Test.txt', '3982.txt'], None],
 }
 
+from .utils import utils
+from .utils import psrm_utils
+from . import psrmDB
+from . import enums
+
 
 if __name__ == '__main__':
     from psrm.psrm_ci_ft_base import PSRM_CI_FT_BASE
