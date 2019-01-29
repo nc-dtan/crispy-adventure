@@ -85,10 +85,10 @@ class PSRM_CI_FT_BASE:
 
     def get_by_id(self, id):
         """Given a NYMFID return afregn, underret, and udtraek"""
-        afregn = self.afregning[self.afregning.NYMFID == id]
-        underret = self.underretning[self.underretning.NYMFID == id]
-        udtraek = self.udtraeksdata[self.udtraeksdata.NYMFID == id]
-        udlign = self.udligning[self.udligning.NYMFID == id]
+        afregn = self.afregning.query('NYMFID == @id')
+        underret = self.underretning.query('NYMFID == @id')
+        udtraek = self.udtraeksdata.query('NYMFID == @id')
+        udlign = self.udligning.query('NYMFID == @id')
         return Afregning(afregn), Underretning(underret), Udligning(udlign), Udtraek(udtraek)
 
     def check_id(self, id):
