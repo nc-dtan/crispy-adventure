@@ -1,14 +1,14 @@
 backcall==0.1.0
-decorator==4.3.0
+decorator==4.3.2
 ipython==7.2.0
 ipython-genutils==0.2.0
 jedi==0.13.2
 numpy==1.16.0
-pandas==0.23.4
-parso==0.3.1
+pandas==0.24.0
+parso==0.3.2
 pexpect==4.6.0
 pickleshare==0.7.5
-prompt-toolkit==2.0.7
+prompt-toolkit==2.0.8
 ptyprocess==0.6.0
 Pygments==2.3.1
 python-dateutil==2.7.5
@@ -19,7 +19,7 @@ wcwidth==0.1.7
 xlrd==1.2.0
 gitpython==2.1.11
 xlsxwriter==1.1.2
-tqdm==4.29.1
+tqdm==4.30.0
 pathos==0.2.3
 lxml==4.3.0
 dicttoxml==1.7.4
