@@ -13,6 +13,10 @@ class PSRM_CI_FT_BASE:
     def __init__(self, path=None, input=None):
         utils.check_requirements()
         self.path = path
+        self._udligning = None
+        self._afregning = None
+        self._underretning = None
+        self._udtraeksdata = None
         sheets = {}
         for name in input:
             data = input[name][0]
@@ -39,17 +43,22 @@ class PSRM_CI_FT_BASE:
             self.sheets = sheets
 
 
-    @property
-    def udligning(self):
+    def _get_udligning(self):
         # same as afregning
         rename = {'EFIFORDRINGIDENTIFIKATOR': 'NYMFID'}
         df = self.sheets['Udligning'].copy()
         validator.check_udligning(df)
         df.rename(columns=rename, inplace=True)
-        return df
+        self._udligning = df
+        return self._udligning
 
     @property
-    def afregning(self):
+    def udligning(self):
+        if self._udligning is None:
+            return self._get_udligning()
+        return self._udligning
+
+    def _get_afregning(self):
         df = self.sheets['PSRM Afregning'].copy()  # load and format PSRM Afregning
         df = df[~df['NYMFID'].isnull()]  # remove the few events with no NYMFID
         df.loc[:, 'NYMFID'] = df['NYMFID'].astype('int64')  # convert ID to correct type
@@ -60,18 +69,30 @@ class PSRM_CI_FT_BASE:
         validator.check_afregningsdata(df)
         rename = {'CUR_AMT': 'AMOUNT'}
         df.rename(columns=rename, inplace=True)
-        return df
+        self._afregning = df
+        return self._afregning
 
     @property
-    def underretning(self):
+    def afregning(self):
+        if self._afregning is None:
+            return self._get_afregning()
+        return self._afregning
+
+    def _get_underretning(self):
         rename = {'EFIFORDRINGIDENTIFIKATOR': 'NYMFID'}
         df = self.sheets['Afregning_Underretning'].copy()
         validator.check_underretning(df)
         df.rename(columns=rename, inplace=True)
-        return df
+        self._underretning = df
+        return self._underretning
 
     @property
-    def udtraeksdata(self):
+    def underretning(self):
+        if self._underretning is None:
+            return self._get_underretning()
+        return self._underretning
+
+    def _get_udtraeksdata(self):
         rename = {'EXTERNAL_OBLIGATION_ID' : 'NYMFID'}
         df = self.sheets['Udtræk'].copy()  # load and format PSRM Afregning
         df = df[~df['EXTERNAL_OBLIGATION_ID'].isnull()]  # remove with no NYMFID
@@ -81,14 +102,21 @@ class PSRM_CI_FT_BASE:
         df['EFFECTIVE_DATE'] = df['EFFECTIVE_DATE'].dt.date
         df['TransDTTM_dt'] = pd.to_datetime(df['TRANSACTION_DATE'])
         df['TransDTTM_value'] = df['TransDTTM_dt'].view('int64')
-        return df
+        self._udtraeksdata = df
+        return self._udtraeksdata
+
+    @property
+    def udtraeksdata(self):
+        if self._udtraeksdata is None:
+            return self._get_udtraeksdata()
+        return self._udtraeksdata
 
     def get_by_id(self, id):
         """Given a NYMFID return afregn, underret, and udtraek"""
-        afregn = self.afregning[self.afregning.NYMFID == id]
-        underret = self.underretning[self.underretning.NYMFID == id]
-        udtraek = self.udtraeksdata[self.udtraeksdata.NYMFID == id]
-        udlign = self.udligning[self.udligning.NYMFID == id]
+        afregn = self.afregning.query('NYMFID == @id')
+        underret = self.underretning.query('NYMFID == @id')
+        udtraek = self.udtraeksdata.query('NYMFID == @id')
+        udlign = self.udligning.query('NYMFID == @id')
         return Afregning(afregn), Underretning(underret), Udligning(udlign), Udtraek(udtraek)
 
     def check_id(self, id):
