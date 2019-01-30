@@ -26,3 +26,8 @@ def find_target_sum(target, numbers, nmax=5):
         for combination in combinations(numbers, r):
             if sum(combination) == target:
                 return list(combination)
+
+
+def count_occurences(numbers):
+    numbers = list(numbers)
+    return {number: numbers.count(number) for number in set(numbers)}
