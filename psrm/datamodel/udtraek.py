@@ -20,6 +20,9 @@ class Udtraek(Data):
         else:
             temp = df
         idx = [is_integer(a) for a in temp['PARENT_ID']]
+        if len(idx) == 0:
+            return 0
+
         if idx[0] == False and len(idx) == 1:
             return 0
         else:
