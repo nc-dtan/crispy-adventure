@@ -55,6 +55,9 @@ rep['ALL_OK'] = ok
 dr['Fejlkategori'] = False
 dr.loc[dr['Difference'] == -0.01, 'Fejlkategori'] = 'DB fejl'
 
+#rep.query('~ALL_OK & Saldo_DR.isnull()', inplace=True)
+rep.query('~ALL_OK', inplace=True)
+
 # Test for missing underretning
 for i, row in dr.iterrows():
     if row['Fejlkategori'] != False:
@@ -67,10 +70,10 @@ for i, row in dr.iterrows():
         ac = acl.query('NYMFID==@nymfid')
         if len(ac.query('ISPAY')) != 0:
             raise ValueError
+
 dr = dr.set_index('NYMFID')
 rep = pd.merge(rep, dr, on='NYMFID', how='left')
-#rep.query('~ALL_OK & Saldo_DR.isnull()', inplace=True)
-rep.query('~ALL_OK', inplace=True)
+
 assert all(rep['Difference'] != 0)
 bool_sort = ['UDL_HF_OK', 'AFR_HF_OK','UDL_IR_OK','AFR_IR_OK']
 rep.sort_values(bool_sort, inplace=True)
