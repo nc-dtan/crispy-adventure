@@ -5,10 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto'>
-<link rel="stylesheet" 
-href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" 
-integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" 
-crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
 html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
 </style>
@@ -39,16 +36,14 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
   </div><br>
   <div class="w3-white w3-text-grey w3-card-4">
     <div class="w3-container">
-      <p class="w3-large"><b><i class="fas fa-piggy-bank fa-fw w3-margin-right 
+      <p class="w3-large"><b><i class="fa fa-asterisk fa-fw w3-margin-right 
       w3-text-teal"></i>Bankafregning</b></p>
       <div class="w3-container">
-        <h6 class="w3-text-teal"><i class="fa fa-calendar fa-fw 
-                w3-margin-right"></i>Jan 2015 - <span class="w3-tag w3-teal 
-                w3-round">Current</span></h6>
-        <hr>
-      </div>
-       <div class="w3-container">
+        <h5 class="w3-opacity"><b>Bankafregning</b></h5>
+        <h6 class="w3-text-teal"><i class="fa fa-calendar fa-fw w3-margin-right"></i>Jan 2015 - <span class="w3-tag w3-teal w3-round">Current</span></h6>
+        <p>Lorem ipsumluta ea et odio, unde doloremque repellendus iure, iste.</p>
         {{afregn | safe}}
+        <hr>
       </div>
       <br>
     </div>
@@ -59,51 +54,35 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
 <!-- Right Column -->
 <div class="w3-twothird">
   <div class="w3-container w3-card w3-white w3-margin-bottom">
-      <p class="w3-large"><b><i class="fas fa-comment-alt fa-fw w3-margin-right 
-      w3-text-teal"></i>Afregningsunderretninger</b></p>
+    <h2 class="w3-text-grey w3-padding-16"><i class="fa fa-asterisk fa-fw w3-margin-right w3-xxlarge w3-text-teal"></i>Overblik</h2>
     <div class="w3-container">
-      <h6 class="w3-text-teal"><i class="fa fa-calendar fa-fw 
-      w3-margin-right"></i>Dec 2018</h6>
-      <hr>
-    </div>
-    <div class="w3-container">
+      <h5 class="w3-opacity"><b>Afregning</b></h5>
+      <h6 class="w3-text-teal"><i class="fa fa-calendar fa-fw w3-margin-right"></i>Jan 2015 - <span class="w3-tag w3-teal w3-round">Current</span></h6>
+      <p>Lorem ipsumluta ea et odio, unde doloremque repellendus iure, iste.</p>
       {{underret | safe}}
-      <br>
-    </div>
-  </div>
-
-
-  <div class="w3-container w3-card w3-white w3-margin-bottom">
-      <p class="w3-large"><b><i class="fas fa-comment-alt fa-fw w3-margin-right 
-      w3-text-teal"></i>Udligningsunderretninger</b></p>
-    <div class="w3-container">
-      <h6 class="w3-text-teal"><i class="fa fa-calendar fa-fw 
-              w3-margin-right"></i>Jan 2015 - <span class="w3-tag w3-teal 
-              w3-round">Current</span></h6>
       <hr>
     </div>
+  </div>
+  <div class="w3-container w3-card w3-white w3-margin-bottom">
+    <h2 class="w3-text-grey w3-padding-16"><i class="fa fa-asterisk fa-fw w3-margin-right w3-xxlarge w3-text-teal"></i>Overblik</h2>
     <div class="w3-container">
+      <h5 class="w3-opacity"><b>Afregning</b></h5>
+      <h6 class="w3-text-teal"><i class="fa fa-calendar fa-fw w3-margin-right"></i>Jan 2015 - <span class="w3-tag w3-teal w3-round">Current</span></h6>
+      <p>Lorem ipsumluta ea et odio, unde doloremque repellendus iure, iste.</p>
       {{udlign | safe}}
-      <br>
-    </div>
-  </div>
-
-
-  <div class="w3-container w3-card w3-white w3-margin-bottom">
-      <p class="w3-large"><b><i class="fas fa-database fa-fw w3-margin-right 
-      w3-text-teal"></i>ACL udtræk</b></p>
-    <div class="w3-container">
-      <h6 class="w3-text-teal"><i class="fa fa-calendar fa-fw 
-              w3-margin-right"></i>Jan 2015 - <span class="w3-tag w3-teal 
-              w3-round">Current</span></h6>
       <hr>
     </div>
+  </div>
+  <div class="w3-container w3-card w3-white w3-margin-bottom">
+    <h2 class="w3-text-grey w3-padding-16"><i class="fa fa-asterisk fa-fw w3-margin-right w3-xxlarge w3-text-teal"></i>Overblik</h2>
     <div class="w3-container">
+      <h5 class="w3-opacity"><b>Afregning</b></h5>
+      <h6 class="w3-text-teal"><i class="fa fa-calendar fa-fw w3-margin-right"></i>Jan 2015 - <span class="w3-tag w3-teal w3-round">Current</span></h6>
+      <p>Lorem ipsumluta ea et odio, unde doloremque repellendus iure, iste.</p>
       {{udtraek | safe}}
-      <br>
+      <hr>
     </div>
   </div>
-
  <!-- End Right Column -->
  </div>
 
