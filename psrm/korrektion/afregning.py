@@ -1,5 +1,6 @@
 from lxml import etree
 from dicttoxml import dicttoxml
+from psrm.utils.language_util import convert_to_danish
 
 
 class Afregning:
@@ -17,6 +18,7 @@ class Afregning:
 
         root = etree.fromstring(xml.decode())
         xml_pretty = etree.tostring(root, pretty_print=True).decode()
+        xml_pretty = convert_to_danish(xml_pretty)
         with open(fname, 'w') as f:
             f.write(xml_pretty)
         return xml_pretty
@@ -33,13 +35,13 @@ class UdligningAfregningListe:
 
 class UdligningAfregning:
     def __init__(self, afregningId=None,
-                       afregningBeloebStruktur=None,
+                       afregningBeløbStruktur=None,
                        afregningDato=None,
                        afregningPerFra=None,
                        afregningPerTil=None,
                        fordringListe=None):
         self.afregningId = afregningId
-        self.afregningBeloebStruktur = afregningBeloebStruktur
+        self.afregningBeløbStruktur = afregningBeløbStruktur
         self.afregningDato = afregningDato
         self.afregningPerFra = afregningPerFra
         self.afregningPerTil = afregningPerTil
@@ -48,7 +50,7 @@ class UdligningAfregning:
     @property
     def __dict__(self):
         return {'FordringHaverAfregningID': self.afregningId,
-                'FordringHaverAfregningBeloebStruktur': self.afregningBeloebStruktur.__dict__,
+                'FordringHaverAfregningBeløbStruktur': self.afregningBeløbStruktur.__dict__,
                 'FordringHaverAfregningDato': self.afregningDato,
                 'FordringHaverAfregningPerFra': self.afregningPerFra,
                 'FordringHaverAfregningPerTil': self.afregningPerTil,
@@ -64,8 +66,8 @@ class BeloebStruktur:
 
     @property
     def __dict__(self):
-        return {f'{self.name}Beloeb': self.amount,
-                f'{self.name}BeloebDKK': self.amountDKK,
+        return {f'{self.name}Beløb': self.amount,
+                f'{self.name}BeløbDKK': self.amountDKK,
                 'ValutaKode': self.currency}
 
 
@@ -75,8 +77,8 @@ class OmfattetAfUdligningAfregning:
                        typeKode=None, typeKategori=None,
                        virkningsDato=None,
                        indbetalingOplysninger=None,
-                       afregningBeloebStruktur=None,
-                       restBeloebStruktur=None):
+                       afregningBeløbStruktur=None,
+                       restBeløbStruktur=None):
         self.efiFordringID = efiHFFordringID
         self.efiHFFordringID = efiHFFordringID
         self.fordringhaverRef = fordringhaverRef
@@ -85,8 +87,8 @@ class OmfattetAfUdligningAfregning:
         self.typeKategori = typeKategori.value
         self.virkningsDato = virkningsDato
         self.indbetalingOplysninger = indbetalingOplysninger
-        self.afregningBeloebStruktur = afregningBeloebStruktur
-        self.restBeloebStruktur = restBeloebStruktur
+        self.afregningBeløbStruktur = afregningBeløbStruktur
+        self.restBeløbStruktur = restBeløbStruktur
 
     @property
     def __dict__(self):
@@ -99,8 +101,8 @@ class OmfattetAfUdligningAfregning:
                       'DMIFordringTypeKategori': self.typeKategori,
                       'DMITransaktionVirkningDato': self.virkningsDato,
                       'SupplerendeIndbetalingOplysninger': self.indbetalingOplysninger.__dict__,
-                      'FordringAfregningBeloebStruktur': self.afregningBeloebStruktur.__dict__,
-                      'FordringRestBeloebStruktur': self.restBeloebStruktur.__dict__}
+                      'FordringAfregningBeløbStruktur': self.afregningBeløbStruktur.__dict__,
+                      'FordringRestBeløbStruktur': self.restBeløbStruktur.__dict__}
                 }
 
 

@@ -7,6 +7,7 @@ from psrm.datamodel.underretning import Underretning
 from psrm.datamodel.udtraek import Udtraek
 from psrm.datamodel.udligning import Udligning
 from psrm.utils import utils
+from psrm.errors.errors import NyMFError
 
 class PSRM_CI_FT_BASE:
 
@@ -111,16 +112,18 @@ class PSRM_CI_FT_BASE:
             return self._get_udtraeksdata()
         return self._udtraeksdata
 
-    def get_by_id(self, id):
+    def get_by_id(self, nymfid):
         """Given a NYMFID return afregn, underret, and udtraek"""
-        afregn = self.afregning.query('NYMFID == @id')
-        underret = self.underretning.query('NYMFID == @id')
-        udtraek = self.udtraeksdata.query('NYMFID == @id')
-        udlign = self.udligning.query('NYMFID == @id')
+        afregn = self.afregning.query('NYMFID == @nymfid')
+        underret = self.underretning.query('NYMFID == @nymfid')
+        udtraek = self.udtraeksdata.query('NYMFID == @nymfid')
+        udlign = self.udligning.query('NYMFID == @nymfid')
+        if not len(afregn) and not len(underret) and not len(udtraek) and not len(udlign):
+            raise NyMFError(f'NyMF id is not found: {nymfid}')
         return Afregning(afregn), Underretning(underret), Udligning(udlign), Udtraek(udtraek)
 
-    def check_id(self, id):
-        af, un, udl, ud = self.get_by_id(id)
+    def check_id(self, nymfid):
+        af, un, udl, ud = self.get_by_id(nymfid)
         print('-'*80)
         print('Afregning\n')
         print(af)
