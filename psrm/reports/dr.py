@@ -1,27 +1,26 @@
+import pandas as pd
 import psrm
 from psrm.enums.fordringshaver import FordringsHaver as FH
-from tqdm import tqdm
-from report_utils import *
-
+from psrm import report_utils as ru
 
 # Load data
 ps = psrm.psrm_utils.cache_psrm(path=psrm.path_v4, input=psrm.v4)
-acl = annotate_acl(ps.udtraeksdata, claimant=FH.DR.value['Claimant_ID'])
-udl = annotate_udl(ps.udligning)
-afr = annotate_afr(ps.underretning)
-dr = saldo_DR()
-rm = saldo_PSRM()
+acl = ru.annotate_acl(ps.udtraeksdata, claimant=FH.DR.value['Claimant_ID'])
+udl = ru.annotate_udl(ps.udligning)
+afr = ru.annotate_afr(ps.underretning)
+dr = ru.saldo_DR()
+rm = ru.saldo_PSRM()
 
 # Calculate totals of 'underretninger' on HF/~HF per NYMFID
-afr_hf = sum_NYMF(afr).rename(columns={'AMOUNT': 'AFR_HF'})
-afr_ir = sum_NYMF(afr, HF=False).rename(columns={'AMOUNT': 'AFR_IR'})
-udl_hf = sum_NYMF(udl).rename(columns={'AMOUNT': 'UDL_HF'})
-udl_ir = sum_NYMF(udl, HF=False).rename(columns={'AMOUNT': 'UDL_IR'})
+afr_hf = ru.sum_NYMF(afr).rename(columns={'AMOUNT': 'AFR_HF'})
+afr_ir = ru.sum_NYMF(afr, HF=False).rename(columns={'AMOUNT': 'AFR_IR'})
+udl_hf = ru.sum_NYMF(udl).rename(columns={'AMOUNT': 'UDL_HF'})
+udl_ir = ru.sum_NYMF(udl, HF=False).rename(columns={'AMOUNT': 'UDL_IR'})
 
 # Calculate debt, payments and interests per NYMFID
-debt = acl_debt(acl)
-pays = acl_pay(acl)
-intr = acl_interest(acl)
+debt = ru.acl_debt(acl)
+pays = ru.acl_pay(acl)
+intr = ru.acl_interest(acl)
 
 # Create report, merge debt
 rep = pd.DataFrame(acl['NYMFID'].unique(), columns=['NYMFID'])
@@ -40,8 +39,10 @@ rep = rep.fillna(0)
 rep['DEBT_REMAIN'] = (rep['DEBT']-rep['PAYMENT']+rep['ACL_IR']).round(2)
 rep['ACL_HF'] = (rep['PAYMENT'] - rep['ACL_IR']).round(2)
 rep = pd.merge(rep, rm, on='NYMFID', how='left')
-assert rep['NYMFID'].is_unique
-assert len(rep) == len(acl['NYMFID'].unique())
+if not rep['NYMFID'].is_unique:
+    raise psrm.errors.NyMFError('NYMFIDs are not unique.')
+if not len(rep) == len(acl['NYMFID'].unique()):
+    raise psrm.errors.NyMFError('Report df does not have the right length.')
 
 # Mark ballance errors
 rep['UDL_HF_OK'] = rep['ACL_HF'] == rep['UDL_HF']
@@ -54,8 +55,6 @@ rep['ALL_OK'] = ok
 # Mark DB round error for 1 øre
 dr['Fejlkategori'] = False
 dr.loc[dr['Difference'] == -0.01, 'Fejlkategori'] = 'DB fejl'
-
-#rep.query('~ALL_OK & Saldo_DR.isnull()', inplace=True)
 rep.query('~ALL_OK', inplace=True)
 
 # Test for missing underretning
@@ -69,29 +68,11 @@ for i, row in dr.iterrows():
         dr.loc[dr['NYMFID']==nymfid, 'Fejlkategori'] = 'ingen aktivitet'
         ac = acl.query('NYMFID==@nymfid')
         if len(ac.query('ISPAY')) != 0:
-            raise ValueError
+            raise psrm.errors.NyMFError('Payments should not possible here.')
 
 dr = dr.set_index('NYMFID')
 rep = pd.merge(rep, dr, on='NYMFID', how='left')
 
-assert all(rep['Difference'] != 0)
 bool_sort = ['UDL_HF_OK', 'AFR_HF_OK','UDL_IR_OK','AFR_IR_OK']
 rep.sort_values(bool_sort, inplace=True)
 rep.to_csv('total_dr_test.csv', index=False)
-
-# samtidighed
-
-#rep = read_pickle('rep.pkl')
-#dr = dr.join(rep['ALL_OK'], how='left')
-#dr = dr.fillna(-1)
-#
-## Test for DR IR not included
-#for nymfid, row in dr[dr['Forklaring']==False].iterrows():
-#    a = afr.query('NYMFID==@nymfid')
-#    u = udl.query('NYMFID==@nymfid')
-#    ac = acl.query('NYMFID==@nymfid')
-#    debt = ac.query('ISDEBT')['AMOUNT'].sum().round(2)
-#    pay_hf = udl.query('NYMFID==@nymfid').query('ISHF')['AMOUNT'].sum().round(2)
-#    hr_remain = round(debt - pay_hf, 2)
-#    if row['Saldo_DR'] == hr_remain:
-#        dr.loc[nymfid, 'Forklaring'] = 'mangler renter'

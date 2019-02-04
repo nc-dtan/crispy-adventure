@@ -88,8 +88,10 @@ v4 = {
 
 from .utils import utils
 from .utils import psrm_utils
+from .utils import report_utils
 from . import psrmDB
 from . import enums
+from .errors import errors
 
 
 if __name__ == '__main__':
