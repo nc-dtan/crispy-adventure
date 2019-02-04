@@ -6,7 +6,7 @@ app = Flask(__name__)
    
 
 def _html(df):
-    return df.to_html(classes=['w3-table-all'], index=False)
+    return df.to_html(classes=['w3-table', 'w3-striped'], index=False)
 
 
 @app.route("/")
@@ -17,22 +17,23 @@ def index():
 @app.route('/', methods=['POST'])
 def my_form_post():
     nymfid = request.form['nymfid']
-    nymfid = 100052710938
-    afregn, underret, udlign, udtraek = ps.get_by_id(nymfid)
-    cols = ['VIRKNINGSDATO', 'EFIBETALINGSIDENTIFIKATOR', 'AMOUNT',
-            'Daekningstype', 'DMIFordringTypeKategori']
-    afregn = afregn.df[['VIRKNINGSDATO', 'AMOUNT', 'FT_TYPE_FLG']]
-    underret = underret.df[cols]
-    udlign = udlign.df[cols]
-    udtraek = udtraek.df
-    del udtraek['NYMFID']
+    if nymfid == '':
+        nymfid = 100052710938
+    else:
+        nymfid = int(nymfid)
     return render_template("index.html",
-                           afregn=_html(afregn),
-                           underret=_html(underret),
-                           udlign=_html(udlign),
-                           udtraek=_html(udtraek),)
+                           afregn=_html(afregn.query('NYMFID==@nymfid')),
+                           underret=_html(underret.query('NYMFID==@nymfid')),
+                           udlign=_html(udlign.query('NYMFID==@nymfid')),
+                           udtraek=_html(udtraek.query('NYMFID==@nymfid')))
 
 
 if __name__ == "__main__":
     ps = psrm.psrm_utils.cache_psrm(path=psrm.path_v4, input=psrm.v4)
-    app.run(debug=True)
+    cols = ['NYMFID', 'VIRKNINGSDATO', 'EFIBETALINGSIDENTIFIKATOR', 'AMOUNT',
+            'Daekningstype', 'DMIFordringTypeKategori']
+    afregn = ps.afregning[['NYMFID', 'VIRKNINGSDATO', 'AMOUNT', 'FT_TYPE_FLG']]
+    underret = ps.underretning[cols]
+    udlign = ps.udligning[cols]
+    udtraek = ps.udtraeksdata
+    app.run(debug=False)
