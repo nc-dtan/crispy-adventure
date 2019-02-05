@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<title>Opslag af fordring</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{{ url_for('static', filename='w3.css') }}">
+<link rel='stylesheet' href="{{ url_for('static', filename='Roboto.css') }}">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<style>
+html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif}
+</style>
+<body class="w3-light-grey">
+
+
+<!-- Page Container -->
+<div class="w3-content w3-margin-top" style="max-width:1400px;">
+<!-- The Grid -->
+<div class="w3-row-padding">
+<div class="w3-container">
+<h2 class="w3-text-grey w3-padding-16">Opslag af fordring</h2>
+</div>
+  
+<!-- Left Column -->
+<div class="w3-third">
+  <div class="w3-white w3-text-grey w3-card-4">
+    <div class="w3-container">
+      <p class="w3-large"><b><i class="fa fa-asterisk fa-fw w3-margin-right w3-text-teal"></i>NYMFID</b></p>
+      <div class="w3-container">
+        <form method="POST">
+        <input class="w3-input w3-border w3-padding"
+               type="text"
+               name=nymfid
+               placeholder="Søg på en fordring">
+        <br>
+        <button class="w3-btn w3-teal">Søg</button></p>
+        </form>
+      </div>
+      <br>
+    </div>
+  </div><br>
+  <div class="w3-white w3-text-grey w3-card-4">
+    <div class="w3-container">
+      <p class="w3-large"><b><i class="fas fa-piggy-bank fa-fw w3-margin-right 
+      w3-text-teal"></i>Bankafregning</b></p>
+       <div class="w3-container">
+        <h6 class="w3-text-teal">
+            <i class="fa fa-calendar fa-fw w3-margin-right"></i>
+          <span class="w3-tag w3-teal w3-round">Dec 31 2018</span></h6>
+        <hr>
+       </div>
+       <div class="w3-container w3-responsive">
+        {{afregn | safe}}
+      </div>
+      <br>
+    </div>
+  </div><br>
+<!-- End Left Column -->
+</div>
+
+<!-- Right Column -->
+<div class="w3-twothird">
+  <div class="w3-container w3-card w3-white w3-margin-bottom">
+      <p class="w3-large"><b><i class="fas fa-comment-alt fa-fw w3-margin-right 
+      w3-text-teal"></i>Afregningsunderretninger</b></p>
+    <div class="w3-container">
+    <h6 class="w3-text-teal">
+        <i class="fa fa-calendar fa-fw w3-margin-right"></i>
+        <span class="w3-tag w3-teal w3-round">Dec 31 2018</span></h6>
+      <hr>
+    </div>
+    <div class="w3-container w3-responsive">
+      {{underret | safe}}
+      <br>
+    </div>
+  </div>
+
+  <div class="w3-container w3-card w3-white w3-margin-bottom">
+      <p class="w3-large"><b><i class="fas fa-comment-alt fa-fw w3-margin-right 
+      w3-text-teal"></i>Udligningsunderretninger</b></p>
+    <div class="w3-container">
+    <h6 class="w3-text-teal">
+        <i class="fa fa-calendar fa-fw w3-margin-right"></i>
+        <span class="w3-tag w3-teal w3-round">Dec 31 2018</span></h6>
+      <hr>
+    </div>
+    <div class="w3-container w3-responsive">
+      {{udlign | safe}}
+      <br>
+    </div>
+  </div>
+
+  <div class="w3-container w3-card w3-white w3-margin-bottom">
+      <p class="w3-large"><b><i class="fas fa-database fa-fw w3-margin-right 
+      w3-text-teal"></i>ACL udtræk</b></p>
+    <div class="w3-container">
+    <h6 class="w3-text-teal">
+        <i class="fa fa-calendar fa-fw w3-margin-right"></i>
+        <span class="w3-tag w3-teal w3-round">Dec 31 2018</span></h6>
+      <hr>
+    </div>
+    <div class="w3-container w3-responsive">
+      {{udtraek | safe}}
+      <br>
+    </div>
+  </div>
+
+<!-- End Right Column -->
+</div>
+    
+<!-- End Grid -->
+</div>
+<!-- End Page Container -->
+</div>
+
+
+</body>
+</html>
+
