@@ -6,9 +6,11 @@ from psrm.enums.justeringstype import JusteringsType as JT
 def annotate_acl(acl, end_date='2018-12-29', claimant=None):
     """Timecut and annotate ACL-udtraek."""
     end_date = pd.to_datetime(end_date)  # cutdate
-    acols = ['NYMFID', 'EFFECTIVE_DATE', 'PARENT_ID', 'AMOUNT', 'CLAIMANT_ID']
+    acols = ['NYMFID', 'EFFECTIVE_DATE', 'TRANSACTION_DATE',
+             'PARENT_ID', 'AMOUNT', 'CLAIMANT_ID']
     acl = acl[acols].copy()
     acl['EFFECTIVE_DATE'] = pd.to_datetime(acl['EFFECTIVE_DATE'])
+    acl['TRANSACTION_DATE'] = pd.to_datetime(acl['TRANSACTION_DATE'])
     acl.query('EFFECTIVE_DATE < @end_date', inplace=True)
     if claimant is not None:
         acl.query('CLAIMANT_ID == @claimant', inplace=True)  # CLAMAINT
@@ -33,9 +35,12 @@ def annotate_udl(udl, end_date='2018-12-29'):
     return udl[['NYMFID', 'ISHF', 'AMOUNT', 'VIRKNINGSDATO']]
 
 
-def annotate_afr(afr):
+def annotate_afr(afr, end_date='2018-12-29'):
     """Prepare afregning underretning."""
+    end_date = pd.to_datetime(end_date)  # cutdate
     afr = afr.copy()
+    afr['VIRKNINGSDATO'] = pd.to_datetime(afr['VIRKNINGSDATO'])
+    afr.query('VIRKNINGSDATO < @end_date', inplace=True)
     afr.query('~Daekningstype.isnull()', inplace=True)
     afr['ISHF'] = afr['DMIFordringTypeKategori'].isin(['IG', 'OG', 'HF', 'OR'])
     return afr[['NYMFID', 'ISHF', 'AMOUNT']]
