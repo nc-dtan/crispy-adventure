@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-from Cython.Distutils import build_ext
 
 
 with open("README.md", "r") as fh:
@@ -14,5 +13,4 @@ setup(
     license='',
     packages=find_packages(),
     url='https://github.com/nc-dtan/crispy-adventure',
-    cmdclass={'build_ext': build_ext},
 )

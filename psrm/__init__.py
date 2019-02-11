@@ -1,3 +1,4 @@
+name = 'psrm'
 # The input data format
 # ---------------------
 # 'path' is the path where all file data is assumed to be in
