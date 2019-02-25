@@ -23,5 +23,5 @@ xlsxwriter==1.1.5
 pathos==0.2.3
 lxml==4.3.1
 dicttoxml==1.7.4
-cx-Oracle==7.1.0
+cx-Oracle==7.1.1
 flask==1.0.2
