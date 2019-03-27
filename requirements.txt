@@ -21,7 +21,7 @@ gitpython==2.1.11
 tqdm==4.31.1
 xlsxwriter==1.1.5
 pathos==0.2.3
-lxml==4.3.2
+lxml==4.3.3
 dicttoxml==1.7.4
 cx-Oracle==7.1.2
 flask==1.0.2
