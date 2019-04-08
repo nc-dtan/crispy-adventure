@@ -19,7 +19,7 @@ wcwidth==0.1.7
 xlrd==1.2.0
 gitpython==2.1.11
 tqdm==4.31.1
-xlsxwriter==1.1.5
+xlsxwriter==1.1.6
 pathos==0.2.3
 lxml==4.3.3
 dicttoxml==1.7.4
